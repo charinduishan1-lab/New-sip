@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SIPHLA LK - Lessons</title>
+<title>SIPHLA LK - LMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+select, button{padding:12px;border:none;border-radius:8px;width:100%;margin:10px 0;font-size:16px}
+.card{background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer;transition:0.3s}
+.card:hover{background:rgba(255,255,255,0.25)}
+.backBtn{background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px}
+</style>
 </head>
 <body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
 
 <h1 style="text-align:center">📚 SIPHLA LK</h1>
-<p style="text-align:center">Free Lessons for Grade 6 - A/L</p>
+<p style="text-align:center">Select Grade → Subject → Lesson</p>
 
-<div id="lessons" style="max-width:900px;margin:30px auto"></div>
+<div id="app" style="max-width:800px;margin:30px auto"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -22,7 +28,9 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 var lessonsRef = db.ref('lessons');
+var allLessons = [];
 
+// YouTube ID ganna
 function getYouTubeID(url){
   if(!url) return '';
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -30,38 +38,76 @@ function getYouTubeID(url){
   return (match&&match[7].length==11)? match[7] : '';
 }
 
+// Data load
 lessonsRef.on('value', function(snapshot) {
-  var html = '';
-  if(snapshot.numChildren() == 0){ html = '<p style="text-align:center">No lessons yet</p>' }
-
+  allLessons = [];
   snapshot.forEach(function(child) {
     var l = child.val();
-    var videoID = getYouTubeID(l.ytlink);
-    var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
-    // WENAS 1: youtube-nocookie.com use kale
-    var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
-
-    html += '<div style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:20px">';
-    html += '<span style="background:#8B5CF6;padding:5px 12px;border-radius:20px;font-size:12px">Grade ' + l.grade + ' - ' + l.subject + '</span>';
-    html += '<h3 style="margin:15px 0">' + l.title + '</h3>';
-
-    if(videoID){
-      html += '<div id="vid-' + child.key + '" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="playVideo(\'' + child.key + '\',\'' + embedLink + '\')">';
-      html += '<img src="' + thumbnail + '" style="width:100%;display:block">';
-      html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div>';
-      html += '</div>';
-    } else {
-      html += '<p style="opacity:0.7">No video link</p>';
-    }
-    html += '</div>';
+    l.key = child.key;
+    allLessons.push(l);
   });
-  lessons.innerHTML = html;
+  showGrades();
 });
 
-function playVideo(id, embedLink){
-  // WENAS 2: privacy mode params add kale
-  document.getElementById('vid-' + id).innerHTML =
-  '<iframe width="100%" height="250" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
+// STEP 1: Grades penanna
+function showGrades(){
+  var grades = [...new Set(allLessons.map(l => l.grade))].sort();
+  var html = '<h2>1. Select Grade</h2>';
+  if(grades.length == 0) html += '<p>No lessons yet</p>';
+  grades.forEach(g => {
+    html += '<div class="card" onclick="showSubjects(\'' + g + '\')"><h3>Grade ' + g + '</h3></div>';
+  });
+  app.innerHTML = html;
+}
+
+// STEP 2: Subjects penanna
+function showSubjects(grade){
+  var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))].sort();
+  var html = '<button class="backBtn" onclick="showGrades()">← Back to Grades</button>';
+  html += '<h2>2. Select Subject - Grade ' + grade + '</h2>';
+  subjects.forEach(s => {
+    html += '<div class="card" onclick="showLessons(\'' + grade + '\',\'' + s + '\')"><h3>' + s + '</h3></div>';
+  });
+  app.innerHTML = html;
+}
+
+// STEP 3: Lessons penanna
+function showLessons(grade, subject){
+  var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
+  var html = '<button class="backBtn" onclick="showSubjects(\'' + grade + '\')">← Back to Subjects</button>';
+  html += '<h2>3. Select Lesson - ' + subject + '</h2>';
+  lessons.forEach(l => {
+    html += '<div class="card" onclick="playLesson(\'' + l.key + '\')"><h3>' + l.title + '</h3></div>';
+  });
+  app.innerHTML = html;
+}
+
+// STEP 4: Video play karanna
+function playLesson(key){
+  var l = allLessons.find(x => x.key == key);
+  var videoID = getYouTubeID(l.ytlink);
+  var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
+  var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
+
+  var html = '<button class="backBtn" onclick="showLessons(\'' + l.grade + '\',\'' + l.subject + '\')">← Back to Lessons</button>';
+  html += '<h2>' + l.title + '</h2>';
+  html += '<p>Grade ' + l.grade + ' - ' + l.subject + '</p>';
+
+  if(videoID){
+    html += '<div id="vid-' + key + '" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="startVideo(\'' + key + '\',\'' + embedLink + '\')">';
+    html += '<img src="' + thumbnail + '" style="width:100%;display:block">';
+    html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div>';
+    html += '</div>';
+  } else {
+    html += '<p>No video link added</p>';
+  }
+  app.innerHTML = html;
+}
+
+// Video start
+function startVideo(key, embedLink){
+  document.getElementById('vid-' + key).innerHTML =
+  '<iframe width="100%" height="400" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
 }
 </script>
 </body>
