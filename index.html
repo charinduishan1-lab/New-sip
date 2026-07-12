@@ -1,41 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SIPHLA Admin</title>
+<title>SIPHLA LK - Lessons</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
+<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px;text-align:center">
 
-<h1>📊 SIPHLA LK Admin Panel</h1>
+<h1>📚 SIPHLA LK</h1>
+<p>Free Lessons for Grade 6 - A/L</p>
 
-<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px;margin-bottom:20px">
-  <h2>➕ Add New Lesson</h2>
-  
-  <label>Grade:</label><br>
-  <input id="grade" placeholder="Ex: 10, 11, A/L" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  
-  <label>Subject:</label><br>
-  <input id="subject" placeholder="Ex: Science, Maths" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  
-  <label>Lesson Title:</label><br>
-  <input id="title" placeholder="Ex: Photosynthesis" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  
-  <label>YouTube Link:</label><br>
-  <input id="ytlink" placeholder="Ex: https://youtube.com/watch?v=abc123" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  
-  <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%">Save Lesson</button>
-  <p id="status" style="text-align:center;font-weight:bold"></p>
-</div>
+<div id="lessons" style="max-width:800px;margin:30px auto;text-align:left"></div>
 
-<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px">
-  <h2>📝 All Lessons</h2>
-  <div id="list"></div>
-</div>
-
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
 var firebaseConfig = {
   apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
@@ -46,64 +23,26 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 var lessonsRef = db.ref('lessons');
 
-// Save Button
-document.getElementById('saveBtn').onclick = function() {
-  var grade = document.getElementById('grade').value;
-  var subject = document.getElementById('subject').value;
-  var title = document.getElementById('title').value;
-  var ytlink = document.getElementById('ytlink').value;
-  
-  if(!grade || !subject || !title){ alert('Grade, Subject, Title fill karanna'); return; }
-  
-  status.innerText = "Saving...";
-  status.style.color = "yellow";
-  
-  lessonsRef.push({
-    grade:grade, 
-    subject:subject, 
-    title:title,
-    ytlink:ytlink
-  }).then(function(){
-    status.innerText = "✅ Saved Successfully!";
-    status.style.color = "lightgreen";
-    document.getElementById('grade').value='';
-    document.getElementById('subject').value='';
-    document.getElementById('title').value='';
-    document.getElementById('ytlink').value='';
-  }).catch(function(e){
-    status.innerText = "❌ Error: " + e.message;
-    status.style.color = "red";
-  });
-}
-
-// Load Lessons
 lessonsRef.on('value', function(snapshot) {
   var html = '';
+  if(snapshot.numChildren() == 0){ html = '<p style="text-align:center">No lessons yet. Check back later.</p>' }
+  
   snapshot.forEach(function(child) {
     var l = child.val();
-    var key = child.key;
-    
     var ytButton = '';
     if(l.ytlink && l.ytlink != ''){
-      ytButton = '<a href="' + l.ytlink + '" target="_blank" style="padding:8px 12px;background:#FF0000;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:bold;margin-right:5px">▶️ Watch</a>';
+      ytButton = '<a href="' + l.ytlink + '" target="_blank" style="display:inline-block;padding:10px 18px;background:#FF0000;color:white;border:none;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:10px">▶️ Watch on YouTube</a>';
     }
     
-    html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
-    html += '<div style="margin-bottom:10px"><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div>';
-    html += '<div>' + ytButton + '<button onclick="delLesson(\'' + key + '\')" style="padding:8px 12px;background:#EF4444;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold">Delete</button></div>';
-    html += '</div>';
+    html += '<div style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px">';
+    html += '<span style="background:#8B5CF6;padding:5px 12px;border-radius:20px;font-size:12px">Grade ' + l.grade + '</span>';
+    html += '<h3 style="margin:10px 0">' + l.title + '</h3>';
+    html += '<p style="opacity:0.9">' + l.subject + '</p>';
+    html += ytButton;
     html += '</div>';
   });
-  document.getElementById('list').innerHTML = html || '<p style="text-align:center">No lessons yet</p>';
+  lessons.innerHTML = html;
 });
-
-// Delete
-function delLesson(key) {
-  if(confirm('Delete this lesson?')){
-    db.ref('lessons/' + key).remove();
-  }
-}
 </script>
 </body>
 </html>
