@@ -12,7 +12,7 @@
 <div id="app" style="max-width:900px;margin:0 auto"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.10/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
 var firebaseConfig = {
   apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
@@ -41,7 +41,7 @@ lessonsRef.on('value', function(snapshot) {
   showGrades();
 });
 
-// STEP 1: Grades - Purple Circle Cards
+// STEP 1: Grades
 function showGrades(){
   var grades = [...new Set(allLessons.map(l => l.grade))].sort((a,b)=>{
     if(a=='A/L') return 1; if(b=='A/L') return -1; return a-b;
@@ -49,6 +49,8 @@ function showGrades(){
 
   var html = '<h2 style="text-align:center">1. Select Grade</h2>';
   html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px">';
+
+  if(grades.length == 0) html += '<p style="grid-column:span 3;text-align:center">No lessons yet</p>';
 
   grades.forEach(g => {
     var displayName = g == 'A/L'? 'A Level' : 'Grade ' + g;
@@ -61,12 +63,15 @@ function showGrades(){
   app.innerHTML = html;
 }
 
-// STEP 2: Subjects
+// STEP 2: Subjects - MEKA PENNE MEHEN
 function showSubjects(grade){
   var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))].sort();
   var html = '<button onclick="showGrades()" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Grades</button>';
   html += '<h2 style="text-align:center">2. Select Subject - Grade ' + grade + '</h2>';
   html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px">';
+
+  if(subjects.length == 0) html += '<p style="grid-column:span 2;text-align:center">No subjects</p>';
+
   subjects.forEach(s => {
     html += '<div onclick="showLessons(\'' + grade + '\',\'' + s + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:#333;font-weight:600;box-shadow:0 4px 8px rgba(0,0,0,0.2)">' + s + '</div>';
   });
@@ -79,6 +84,9 @@ function showLessons(grade, subject){
   var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
   var html = '<button onclick="showSubjects(\'' + grade + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Subjects</button>';
   html += '<h2 style="text-align:center">3. Select Lesson</h2>';
+
+  if(lessons.length == 0) html += '<p style="text-align:center">No lessons</p>';
+
   lessons.forEach(l => {
     html += '<div onclick="playLesson(\'' + l.key + '\')" style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer">';
     html += '<h3 style="margin:0">' + l.title + '</h3></div>';
@@ -86,7 +94,7 @@ function showLessons(grade, subject){
   app.innerHTML = html;
 }
 
-// STEP 4: Video with nocookie
+// STEP 4: Video
 function playLesson(key){
   var l = allLessons.find(x => x.key == key);
   var videoID = getYouTubeID(l.ytlink);
