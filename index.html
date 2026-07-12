@@ -10,19 +10,27 @@
 
 <div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px;margin-bottom:20px">
   <h2>➕ Add New Lesson</h2>
-  <input id="grade" placeholder="Grade: 10, 11, A/L" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
-  <input id="subject" placeholder="Subject" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
-  <input id="title" placeholder="Lesson Title" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
-  <input id="ytlink" placeholder="YouTube Link: https://youtube.com/watch?v=..." style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
-  <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold">Save Lesson</button>
-  <p id="status"></p>
+  
+  <label>Grade:</label><br>
+  <input id="grade" placeholder="Ex: 10, 11, A/L" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  
+  <label>Subject:</label><br>
+  <input id="subject" placeholder="Ex: Science, Maths" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  
+  <label>Lesson Title:</label><br>
+  <input id="title" placeholder="Ex: Photosynthesis" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  
+  <label>YouTube Link:</label><br>
+  <input id="ytlink" placeholder="Ex: https://youtube.com/watch?v=abc123" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  
+  <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%">Save Lesson</button>
+  <p id="status" style="text-align:center;font-weight:bold"></p>
 </div>
 
 <div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px">
   <h2>📝 All Lessons</h2>
   <div id="list"></div>
 </div>
-
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -38,53 +46,56 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 var lessonsRef = db.ref('lessons');
 
-// Save
+// Save Button
 document.getElementById('saveBtn').onclick = function() {
   var grade = document.getElementById('grade').value;
   var subject = document.getElementById('subject').value;
   var title = document.getElementById('title').value;
   var ytlink = document.getElementById('ytlink').value;
   
-  if(!grade || !subject || !title){ alert('Fill all fields'); return; }
+  if(!grade || !subject || !title){ alert('Grade, Subject, Title fill karanna'); return; }
   
   status.innerText = "Saving...";
+  status.style.color = "yellow";
+  
   lessonsRef.push({
     grade:grade, 
     subject:subject, 
     title:title,
-    ytlink:ytlink  // yt link eka save kale
+    ytlink:ytlink
   }).then(function(){
     status.innerText = "✅ Saved Successfully!";
+    status.style.color = "lightgreen";
     document.getElementById('grade').value='';
     document.getElementById('subject').value='';
     document.getElementById('title').value='';
     document.getElementById('ytlink').value='';
   }).catch(function(e){
     status.innerText = "❌ Error: " + e.message;
+    status.style.color = "red";
   });
 }
 
-// Load
+// Load Lessons
 lessonsRef.on('value', function(snapshot) {
   var html = '';
   snapshot.forEach(function(child) {
     var l = child.val();
     var key = child.key;
     
-    // YT Link thiyenam button eka pennanna
     var ytButton = '';
-    if(l.ytlink){
+    if(l.ytlink && l.ytlink != ''){
       ytButton = '<a href="' + l.ytlink + '" target="_blank" style="padding:8px 12px;background:#FF0000;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:bold;margin-right:5px">▶️ Watch</a>';
     }
     
     html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
-    html += '<div><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div>';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
+    html += '<div style="margin-bottom:10px"><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div>';
     html += '<div>' + ytButton + '<button onclick="delLesson(\'' + key + '\')" style="padding:8px 12px;background:#EF4444;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold">Delete</button></div>';
     html += '</div>';
     html += '</div>';
   });
-  document.getElementById('list').innerHTML = html || '<p>No lessons yet</p>';
+  document.getElementById('list').innerHTML = html || '<p style="text-align:center">No lessons yet</p>';
 });
 
 // Delete
