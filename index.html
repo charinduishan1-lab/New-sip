@@ -6,178 +6,45 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-body{
-  background:#0f0f1a; overflow-x:hidden; color:#fff; min-height:100vh;
-}
-
-/* Animated Particles Background */
+body{background:#0f0f1a; color:#fff; min-height:100vh;}
 #particles{ position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; }
-
-/* Glass Card */
-.glass{
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(25px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius:24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-}
-
-/* 3D Card Effect */
-.card-3d{
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  cursor:pointer;
-  transform-style: preserve-3d;
-  animation: fadeIn 0.5s both;
-}
-.card-3d:hover{
-  transform: translateY(-15px) rotateX(5deg);
-  box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
-  border-color: rgba(102, 126, 234, 0.5);
-}
-
-@keyframes fadeIn{
-  from{opacity:0;transform:translateY(20px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-.btn{
-  padding:14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border:none; color:white; border-radius:15px; cursor:pointer; font-weight:600;
-  transition:0.3s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-.btn:hover{ transform: scale(1.05); }
-
-.loading{
-  position:fixed; top:0; left:0; width:100%; height:100%; background:#0f0f1a;
-  display:flex; align-items:center; justify-content:center; z-index:9999;
-  animation: fadeOut 0.5s 1.5s forwards;
-}
-@keyframes fadeOut{ to{opacity:0; pointer-events:none;} }
-.loader{ width:60px; height:60px; border:4px solid rgba(102,126,234,0.2); border-top:4px solid #667eea; border-radius:50%; animation:spin 1s linear infinite; }
-@keyframes spin{ to{transform:rotate(360deg)} }
-
-h1{ background: linear-gradient(90deg, #667eea, #f093fb); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; }
+.glass{background: rgba(255,255,255,0.05); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius:24px;}
+.card-3d{transition: all 0.4s; cursor:pointer; animation: fadeIn 0.5s both;}
+.card-3d:hover{transform: translateY(-15px);}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.btn{padding:14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border:none; color:white; border-radius:15px; cursor:pointer; font-weight:600;}
+h1{background: linear-gradient(90deg, #667eea, #f093fb); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700;}
 </style>
 </head>
 <body>
-
-<div class="loading"><div class="loader"></div></div>
 <canvas id="particles"></canvas>
 <div id="app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
-// PARTICLES
-const canvas = document.getElementById('particles');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-let particlesArray = [];
-for(let i=0; i<80; i++){
-  particlesArray.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*2+1, speedX:Math.random()*2-1, speedY:Math.random()*2-1})
-}
-function animateParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = 'rgba(102,126,234,0.6)';
-  particlesArray.forEach(p=>{
-    ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
-    p.x += p.speedX; p.y += p.speedY;
-    if(p.x<0||p.x>canvas.width) p.speedX*=-1;
-    if(p.y<0||p.y>canvas.height) p.speedY*=-1;
-  });
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
+const canvas = document.getElementById('particles'); const ctx = canvas.getContext('2d'); canvas.width = window.innerWidth; canvas.height = window.innerHeight; let particlesArray = []; for(let i=0; i<80; i++){ particlesArray.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*2+1, speedX:Math.random()*2-1, speedY:Math.random()*2-1}) } function animateParticles(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = 'rgba(102,126,234,0.6)'; particlesArray.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); p.x += p.speedX; p.y += p.speedY; if(p.x<0||p.x>canvas.width) p.speedX*=-1; if(p.y<0||p.y>canvas.height) p.speedY*=-1; }); requestAnimationFrame(animateParticles); } animateParticles();
 
-// FIREBASE
-var firebaseConfig = {
-  apiKey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w",
-  authDomain: "siphala-lk.firebaseapp.com",
-  databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "siphala-lk"
-};
-firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
-var allLessons = [];
+var firebaseConfig = { apiKey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w", authDomain: "siphala-lk.firebaseapp.com", databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "siphala-lk" };
+firebase.initializeApp(firebaseConfig); var db = firebase.database(); var allLessons = [];
 
 showGrades();
-
-function getYouTubeID(url){
-  if(!url) return '';
-  var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-  var match = url.match(regExp);
-  return (match&&match[7].length==11)? match[7] : '';
-}
+function getYouTubeID(url){ if(!url) return ''; var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/; var match = url.match(regExp); return (match&&match[7].length==11)? match[7] : ''; }
 
 function showGrades(){
   db.ref('lessons').on('value', function(snapshot) {
-    allLessons = [];
-    snapshot.forEach(function(child) {
-      var l = child.val(); l.key = child.key; allLessons.push(l);
-    });
+    allLessons = []; snapshot.forEach(function(child) { var l = child.val(); l.key = child.key; allLessons.push(l); });
     var grades = [...new Set(allLessons.map(l => l.grade))].sort();
-    var html = `<div style="padding:50px 20px;text-align:center">
-      <h1 style="font-size:48px">📚 SIPHLA LK PRO</h1>
-      <p style="opacity:0.7;margin-top:10px">Select Your Grade</p>
-    </div>`;
+    var html = `<div style="padding:50px 20px;text-align:center"><h1 style="font-size:48px">📚 SIPHLA LK PRO</h1><p style="opacity:0.7">Select Your Grade</p></div>`;
     html += '<div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:25px;max-width:1100px;margin:auto">';
-    grades.forEach((g,i) => {
-      html += `<div onclick="showSubjects('${g}')" class="glass card-3d" style="padding:50px 20px;text-align:center;font-size:28px;font-weight:700;animation-delay:${i*0.1}s">${g}</div>`;
-    });
-    html += '</div>';
+    grades.forEach((g,i) => { html += `<div onclick="showSubjects('${g}')" class="glass card-3d" style="padding:50px 20px;text-align:center;font-size:28px;font-weight:700;animation-delay:${i*0.1}s">${g}</div>`; });
+    html += '</div><div style="text-align:center;padding:20px"><a href="admin.html" style="color:#667eea">Admin Login</a></div>';
     app.innerHTML = html;
   });
 }
-
-function showSubjects(grade){
-  var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))];
-  var html = `<div style="padding:30px 20px"><button onclick="showGrades()" class="btn">← Back</button></div>`;
-  html += `<h1 style="text-align:center;font-size:36px">${grade}</h1><p style="text-align:center;opacity:0.7">Select Subject</p>`;
-  html += '<div style="padding:30px;max-width:900px;margin:auto">';
-  subjects.forEach((s,i) => {
-    html += `<div onclick="showLessons('${grade}','${s}')" class="glass card-3d" style="padding:30px;margin:20px 0;font-size:20px;font-weight:600;animation-delay:${i*0.1}s">${s}</div>`;
-  });
-  html += '</div>';
-  app.innerHTML = html;
-}
-
-function showLessons(grade, subject){
-  var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
-  var html = `<div style="padding:30px 20px"><button onclick="showSubjects('${grade}')" class="btn">← Back</button></div>`;
-  html += `<h1 style="text-align:center;font-size:36px">${subject}</h1>`;
-  html += '<div style="padding:20px;max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px">';
-  lessons.forEach((l,i) => {
-    var videoID = getYouTubeID(l.ytlink);
-    var thumb = videoID? `https://img.youtube.com/vi/${videoID}/maxresdefault.jpg` : '';
-    html += `<div onclick="playLesson('${l.key}')" class="glass card-3d" style="padding:0;overflow:hidden;animation-delay:${i*0.1}s">
-      <img src="${thumb}" style="width:100%;height:200px;object-fit:cover">
-      <div style="padding:25px">
-        <h3 style="font-size:18px;margin-bottom:10px">${l.title}</h3>
-        <p style="opacity:0.7;font-size:14px">${l.description || ''}</p>
-      </div>
-    </div>`;
-  });
-  html += '</div>';
-  app.innerHTML = html;
-}
-
-function playLesson(key){
-  var l = allLessons.find(x => x.key == key);
-  var videoID = getYouTubeID(l.ytlink);
-  var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
-  var html = `<div style="padding:30px 20px"><button onclick="showLessons('${l.grade}','${l.subject}')" class="btn">← Back</button></div>`;
-  html += `<div style="padding:20px;max-width:1100px;margin:auto">`;
-  html += `<h1 style="margin-bottom:25px;font-size:32px">${l.title}</h1>`;
-  html += `<div class="glass" style="padding:20px;border-radius:25px">
-    <iframe width="100%" height="550" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen style="border-radius:18px"></iframe>
-  </div>`;
-  if(l.description) html += `<div class="glass" style="padding:25px;margin-top:25px;font-size:16px;line-height:1.8">${l.description}</div>`;
-  html += `</div>`;
-  app.innerHTML = html;
-}
-
+function showSubjects(grade){ var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))]; var html = `<div style="padding:30px 20px"><button onclick="showGrades()" class="btn">← Back</button></div>`; html += `<h1 style="text-align:center;font-size:36px">${grade}</h1>`; html += '<div style="padding:30px;max-width:900px;margin:auto">'; subjects.forEach((s,i) => { html += `<div onclick="showLessons('${grade}','${s}')" class="glass card-3d" style="padding:30px;margin:20px 0;font-size:20px;font-weight:600;animation-delay:${i*0.1}s">${s}</div>`; }); html += '</div>'; app.innerHTML = html; }
+function showLessons(grade, subject){ var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject); var html = `<div style="padding:30px 20px"><button onclick="showSubjects('${grade}')" class="btn">← Back</button></div>`; html += `<h1 style="text-align:center;font-size:36px">${subject}</h1>`; html += '<div style="padding:20px;max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px">'; lessons.forEach((l,i) => { var videoID = getYouTubeID(l.ytlink); var thumb = videoID? `https://img.youtube.com/vi/${videoID}/maxresdefault.jpg` : ''; html += `<div onclick="playLesson('${l.key}')" class="glass card-3d" style="padding:0;overflow:hidden;animation-delay:${i*0.1}s"><img src="${thumb}" style="width:100%;height:200px;object-fit:cover"><div style="padding:25px"><h3>${l.title}</h3><p style="opacity:0.7;font-size:14px">${l.description || ''}</p></div></div>`; }); html += '</div>'; app.innerHTML = html; }
+function playLesson(key){ var l = allLessons.find(x => x.key == key); var videoID = getYouTubeID(l.ytlink); var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : ''; var html = `<div style="padding:30px 20px"><button onclick="showLessons('${l.grade}','${l.subject}')" class="btn">← Back</button></div>`; html += `<div style="padding:20px;max-width:1100px;margin:auto"><h1 style="margin-bottom:25px">${l.title}</h1><div class="glass" style="padding:20px"><iframe width="100%" height="550" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen style="border-radius:18px"></iframe></div>`; if(l.description) html += `<div class="glass" style="padding:25px;margin-top:25px">${l.description}</div>`; html += `</div>`; app.innerHTML = html; }
 window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
 </script>
 </body>
