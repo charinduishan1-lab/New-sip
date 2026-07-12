@@ -3,133 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPHLA LK | Pro Admin</title>
+<title>SIPHLA LK Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #6366F1;
-    --secondary: #8B5CF6;
-    --dark: #0F172A;
-    --glass: rgba(255,255,255,0.1);
-  }
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Poppins', sans-serif; }
   body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; color:#fff; }
-
-  /* Glass Effect */
-  .glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-
-  /* Login Animation */
-  .login-box { max-width: 420px; margin: 100px auto; padding: 40px; animation: float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-
-  .input { width:100%; padding:14px; margin:12px 0; border:none; border-radius:12px; background: rgba(255,255,255,0.15); color:#fff; font-size:16px; transition:0.3s; }
+  .glass { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; }
+  .login-box { max-width: 420px; margin: 100px auto; padding: 40px; }
+  .input { width:100%; padding:14px; margin:12px 0; border:none; border-radius:12px; background: rgba(255,255,255,0.15); color:#fff; font-size:16px; }
   .input::placeholder{color:rgba(255,255,255,0.7)}
-  .input:focus{outline:none; background: rgba(255,255,255,0.25); transform:scale(1.02)}
-  
-  .btn { padding:14px 24px; background: linear-gradient(90deg, var(--primary), var(--secondary)); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:600; transition: all 0.3s; }
-  .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(99,102,241,0.4); }
-
-  /* Dashboard */
+  .btn { width:100%; padding:14px; background: linear-gradient(90deg, #6366F1, #8B5CF6); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:600; font-size:16px; }
+  .btn:hover { transform: translateY(-2px); }
   .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
-  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; animation: fadeIn 0.8s; }
-  @keyframes fadeIn { from{opacity:0; transform:translateY(-20px)} to{opacity:1; transform:translateY(0)} }
-  
+  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
   .stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 30px; }
-  .card { padding: 25px; transition:0.4s; }
-  .card:hover { transform: translateY(-8px) scale(1.02); }
-  .card h2 { font-size: 38px; font-weight: 700; background: linear-gradient(90deg, #fff, #C4B5FD); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  
-  .section { padding: 30px; margin-bottom: 25px; animation: slideUp 0.6s; }
-  @keyframes slideUp { from{opacity:0; transform:translateY(30px)} to{opacity:1; transform:translateY(0)} }
-  
+  .card { padding: 25px; }
+  .section { padding: 30px; margin-bottom: 25px; }
   .tabs { display:flex; gap:12px; margin-bottom:25px; }
-  .tab { padding:12px 24px; border-radius:12px; cursor:pointer; transition:0.3s; background: rgba(255,255,255,0.1); }
-  .tab.active { background: linear-gradient(90deg, var(--primary), var(--secondary)); }
-  
+  .tab { padding:12px 24px; border-radius:12px; cursor:pointer; background: rgba(255,255,255,0.1); }
+  .tab.active { background: linear-gradient(90deg, #6366F1, #8B5CF6); }
   table { width:100%; border-collapse: collapse; }
   th, td { padding:14px; text-align:left; }
-  tr { transition:0.2s; }
-  tr:hover { background: rgba(255,255,255,0.1); }
-  
-  .hidden { display:none; }
-  canvas { max-height: 300px; }
-  .loader { border: 3px solid rgba(255,255,255,0.3); border-top: 3px solid #fff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
-  @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+  #dashboardScreen { display: none; } /* Important */
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="container">
+<div id="loginScreen">
   <div class="login-box glass">
     <h1 style="text-align:center; font-size:32px; margin-bottom:10px;">✨ SIPHLA LK Pro</h1>
     <p style="text-align:center; opacity:0.8; margin-bottom:25px;">Admin Control Center</p>
-    <input type="email" id="email" class="input" placeholder="Admin Email">
-    <input type="password" id="password" class="input" placeholder="Password">
-    <button onclick="login()" class="btn" style="width:100%; margin-top:10px;">Login →</button>
+    <input type="email" id="email" class="input" placeholder="Admin Email" value="siphalakofficial@gmail.com">
+    <input type="password" id="password" class="input" placeholder="Password" value="Siphala@2026">
+    <button onclick="login()" class="btn">Login →</button>
+    <p id="errorMsg" style="color:#F87171; text-align:center; margin-top:10px;"></p>
   </div>
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboardScreen" class="container hidden">
-  <div class="header">
-    <h1>📊 Dashboard Overview</h1>
-    <button onclick="logout()" class="btn" style="background: linear-gradient(90deg, #EF4444, #F87171);">Logout</button>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="showTab('dashboard', this)">Dashboard</div>
-    <div class="tab" onclick="showTab('lessons', this)">Lessons</div>
-    <div class="tab" onclick="showTab('analytics', this)">Analytics</div>
-    <div class="tab" onclick="showTab('settings', this)">Settings</div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="tabContent">
-    <div class="stats">
-      <div class="card glass"><h2 id="totalLessons">0</h2><p>Total Lessons</p></div>
-      <div class="card glass"><h2>50,000+</h2><p>Students</p></div>
-      <div class="card glass"><h2 id="growth">+24%</h2><p>This Month Growth</p></div>
+<div id="dashboardScreen">
+  <div class="container">
+    <div class="header">
+      <h1>📊 Dashboard Overview</h1>
+      <button onclick="logout()" class="btn" style="width:auto; background: linear-gradient(90deg, #EF4444, #F87171);">Logout</button>
     </div>
-    <div class="section glass">
-      <h2>📈 Student Activity</h2>
-      <canvas id="activityChart"></canvas>
-    </div>
-  </div>
 
-  <!-- LESSONS -->
-  <div id="lessons" class="tabContent hidden">
-    <div class="section glass">
-      <h2>➕ Add New Lesson</h2>
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
-        <select id="grade" class="input"><option>Grade</option><option>10</option><option>11</option><option>A/L</option></select>
-        <input type="text" id="subject" class="input" placeholder="Subject">
-        <input type="text" id="title" class="input" placeholder="Lesson Title">
-        <input type="url" id="youtube" class="input" placeholder="YouTube Link">
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('dashboard', this)">Dashboard</div>
+      <div class="tab" onclick="showTab('lessons', this)">Lessons</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="tabContent">
+      <div class="stats">
+        <div class="card glass"><h2 id="totalLessons">0</h2><p>Total Lessons</p></div>
+        <div class="card glass"><h2>50,000+</h2><p>Students</p></div>
       </div>
-      <button onclick="addLesson()" class="btn" style="margin-top:15px;">Publish Lesson 🚀</button>
-      <p id="status"></p>
+      <div class="section glass">
+        <h2>📈 Student Activity</h2>
+        <canvas id="activityChart"></canvas>
+      </div>
     </div>
-    <div class="section glass">
-      <h2>📝 All Lessons</h2>
-      <table><thead><tr><th>Grade</th><th>Subject</th><th>Title</th><th>Action</th></tr></thead><tbody id="lessonBody"></tbody></table>
-    </div>
-  </div>
 
-  <!-- ANALYTICS -->
-  <div id="analytics" class="tabContent hidden">
-    <div class="section glass">
-      <h2>🌍 Traffic Sources</h2>
-      <canvas id="pieChart"></canvas>
-    </div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="settings" class="tabContent hidden">
-    <div class="section glass">
-      <h2>⚙️ Theme & Settings</h2>
-      <p>Change Password, Website Title, Contact Info</p>
+    <!-- LESSONS -->
+    <div id="lessons" class="tabContent" style="display:none;">
+      <div class="section glass">
+        <h2>➕ Add New Lesson</h2>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+          <select id="grade" class="input"><option>Grade</option><option>10</option><option>11</option><option>A/L</option></select>
+          <input type="text" id="subject" class="input" placeholder="Subject">
+          <input type="text" id="title" class="input" placeholder="Lesson Title">
+        </div>
+        <button onclick="addLesson()" class="btn" style="margin-top:15px; width:auto;">Publish Lesson 🚀</button>
+        <p id="status"></p>
+      </div>
+      <div class="section glass">
+        <h2>📝 All Lessons</h2>
+        <table><thead><tr><th>Grade</th><th>Subject</th><th>Title</th><th>Action</th></tr></thead><tbody id="lessonBody"></tbody></table>
+      </div>
     </div>
   </div>
 </div>
@@ -139,49 +92,82 @@
   const ADMIN_PASSWORD = "Siphala@2026";
   let lessons = JSON.parse(localStorage.getItem('siphala_lessons')) || [];
 
-  if(localStorage.getItem('adminLogin') === 'true') showDashboard();
+  // Page load වෙනකොට check කරනවා
+  window.onload = function() {
+    if(localStorage.getItem('adminLogin') === 'true') {
+      showDashboard();
+    }
+  }
 
   function login() {
-    if(email.value === ADMIN_EMAIL && password.value === ADMIN_PASSWORD) {
-      localStorage.setItem('adminLogin', 'true'); showDashboard();
-    } else alert('Invalid Credentials');
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMsg');
+    
+    if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem('adminLogin', 'true');
+      errorMsg.innerText = "";
+      showDashboard();
+    } else {
+      errorMsg.innerText = "❌ වැරදි Email හෝ Password";
+    }
   }
-  function logout() { localStorage.removeItem('adminLogin'); location.reload(); }
+
+  function logout() { 
+    localStorage.removeItem('adminLogin'); 
+    location.reload(); 
+  }
+
   function showDashboard() { 
-    loginScreen.classList.add('hidden'); dashboardScreen.classList.remove('hidden'); 
-    loadLessons(); initCharts();
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').style.display = 'block';
+    loadLessons(); 
+    initCharts();
   }
+
   function showTab(tab, el) { 
-    document.querySelectorAll('.tabContent').forEach(e=>e.classList.add('hidden')); 
-    document.getElementById(tab).classList.remove('hidden'); 
+    document.querySelectorAll('.tabContent').forEach(e=>e.style.display='none'); 
+    document.getElementById(tab).style.display='block'; 
     document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active')); 
     el.classList.add('active');
   }
 
   function addLesson() {
-    lessons.push({grade:grade.value, subject:subject.value, title:title.value, youtube:youtube.value});
+    const lesson = {
+      grade:document.getElementById('grade').value, 
+      subject:document.getElementById('subject').value, 
+      title:document.getElementById('title').value
+    };
+    lessons.push(lesson);
     localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
-    status.innerText = "✅ Published to siphalalk.vercel.app"; status.style.color="#4ADE80";
+    document.getElementById('status').innerText = "✅ Lesson Added";
     loadLessons();
   }
+
   function loadLessons() {
-    lessonBody.innerHTML = ''; document.getElementById('totalLessons').innerText = lessons.length;
+    const lessonBody = document.getElementById('lessonBody');
+    lessonBody.innerHTML = ''; 
+    document.getElementById('totalLessons').innerText = lessons.length;
     lessons.forEach((l,i)=>{
-      lessonBody.innerHTML += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button onclick="lessons.splice(${i},1); loadLessons()" class="btn" style="padding:8px 12px; background:red;">Delete</button></td></tr>`;
+      lessonBody.innerHTML += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button onclick="deleteLesson(${i})" class="btn" style="padding:8px 12px; width:auto; background:red;">Delete</button></td></tr>`;
     });
+  }
+  
+  function deleteLesson(i) {
+    lessons.splice(i,1); 
+    localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
+    loadLessons();
   }
 
   function initCharts() {
-    new Chart(document.getElementById('activityChart'), {
-      type: 'line',
-      data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [{label:'Students Online', data:[1200,1900,3000,5000,2300,3200,4100], borderColor:'#8B5CF6', tension:0.4, fill:true}] },
-      options: { responsive:true, plugins:{legend:{labels:{color:'#fff'}}}, scales:{x:{ticks:{color:'#fff'}}, y:{ticks:{color:'#fff'}}}
-    });
-    new Chart(document.getElementById('pieChart'), {
-      type: 'doughnut',
-      data: { labels: ['Google','WhatsApp','Direct','Facebook'], datasets: [{data:[45,30,15,10], backgroundColor:['#6366F1','#8B5CF6','#EC4899','#F59E0B']}] },
-      options: { plugins:{legend:{labels:{color:'#fff'}}}}
-    });
+    const ctx = document.getElementById('activityChart');
+    if(ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [{label:'Students Online', data:[1200,1900,3000,5000,2300,3200,4100], borderColor:'#8B5CF6', tension:0.4, fill:true}] },
+        options: { responsive:true, plugins:{legend:{labels:{color:'#fff'}}}, scales:{x:{ticks:{color:'#fff'}}, y:{ticks:{color:'#fff'}}}
+      });
+    }
   }
 </script>
 </body>
