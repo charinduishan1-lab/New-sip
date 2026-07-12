@@ -4,7 +4,7 @@
 <title>SIPHLA Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="background:#667eea;color:#fff;font-family:Arial;padding:20px">
+<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
 
 <h1>📊 SIPHLA LK Admin Panel</h1>
 
@@ -13,6 +13,7 @@
   <input id="grade" placeholder="Grade: 10, 11, A/L" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
   <input id="subject" placeholder="Subject" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
   <input id="title" placeholder="Lesson Title" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
+  <input id="ytlink" placeholder="YouTube Link: https://youtube.com/watch?v=..." style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
   <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold">Save Lesson</button>
   <p id="status"></p>
 </div>
@@ -42,15 +43,22 @@ document.getElementById('saveBtn').onclick = function() {
   var grade = document.getElementById('grade').value;
   var subject = document.getElementById('subject').value;
   var title = document.getElementById('title').value;
+  var ytlink = document.getElementById('ytlink').value;
   
   if(!grade || !subject || !title){ alert('Fill all fields'); return; }
   
   status.innerText = "Saving...";
-  lessonsRef.push({grade:grade, subject:subject, title:title}).then(function(){
+  lessonsRef.push({
+    grade:grade, 
+    subject:subject, 
+    title:title,
+    ytlink:ytlink  // yt link eka save kale
+  }).then(function(){
     status.innerText = "✅ Saved Successfully!";
     document.getElementById('grade').value='';
     document.getElementById('subject').value='';
     document.getElementById('title').value='';
+    document.getElementById('ytlink').value='';
   }).catch(function(e){
     status.innerText = "❌ Error: " + e.message;
   });
@@ -62,9 +70,18 @@ lessonsRef.on('value', function(snapshot) {
   snapshot.forEach(function(child) {
     var l = child.val();
     var key = child.key;
-    html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
+    
+    // YT Link thiyenam button eka pennanna
+    var ytButton = '';
+    if(l.ytlink){
+      ytButton = '<a href="' + l.ytlink + '" target="_blank" style="padding:8px 12px;background:#FF0000;color:white;border:none;border-radius:6px;text-decoration:none;font-weight:bold;margin-right:5px">▶️ Watch</a>';
+    }
+    
+    html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
     html += '<div><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div>';
-    html += '<button onclick="delLesson(\'' + key + '\')" style="padding:10px 15px;background:#EF4444;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold">Delete</button>';
+    html += '<div>' + ytButton + '<button onclick="delLesson(\'' + key + '\')" style="padding:8px 12px;background:#EF4444;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold">Delete</button></div>';
+    html += '</div>';
     html += '</div>';
   });
   document.getElementById('list').innerHTML = html || '<p>No lessons yet</p>';
