@@ -1,83 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>SIPHLA Admin</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPHLA Admin</title>
 <style>
-body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Poppins;padding:20px}
-.glass{background:rgba(255,255,255,0.1);padding:20px;border-radius:15px;margin:10px 0}
-input,button{padding:14px;margin:5px;border-radius:10px;border:none;font-size:16px;width:200px}
-button{background:#8B5CF6;color:#fff;cursor:pointer;font-weight:600}
-#log{background:#000;color:#0f0;padding:15px;border-radius:10px;font-family:monospace}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:'Segoe UI';padding:20px;min-height:100vh}
+.box{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);padding:25px;border-radius:20px;margin-bottom:20px}
+input{width:100%;padding:14px;margin:8px 0;border:none;border-radius:10px;background:rgba(255,255,255,0.2);color:#fff;font-size:16px}
+button{padding:14px 25px;background:#8B5CF6;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:16px;margin:5px}
+table{width:100%;margin-top:20px}td,th{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.2)}
+.btn-del{background:#EF4444}
 </style>
 </head>
 <body>
-<h1>📊 SIPHLA Admin - Firebase Debug</h1>
 
-<div class="glass">
-  <h3>Add Lesson</h3>
-  <input id="grade" placeholder="Grade">
-  <input id="subject" placeholder="Subject"> 
-  <input id="title" placeholder="Title">
-  <button onclick="save()">Save to Firebase</button>
-  <p id="status">Status: Waiting...</p>
+<h1>📊 SIPHLA LK Admin Panel</h1>
+
+<div class="box">
+  <h2>➕ Add New Lesson</h2>
+  <input id="grade" placeholder="Grade: 10, 11, A/L">
+  <input id="subject" placeholder="Subject">
+  <input id="title" placeholder="Lesson Title">
+  <button id="saveBtn">Save Lesson</button>
+  <p id="status"></p>
 </div>
 
-<div class="glass">
-  <h3>Live Lessons</h3>
-  <div id="list">Loading...</div>
+<div class="box">
+  <h2>📝 All Lessons</h2>
+  <table><tbody id="list"></tbody></table>
 </div>
 
-<div class="glass">
-  <h3>Error Log</h3>
-  <pre id="log"></pre>
-</div>
+<!-- FIREBASE SCRIPTS -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-function log(msg){ document.getElementById('log').innerText += msg + '\n'; }
-
-const app = initializeApp({
+<script>
+// 1. Firebase Connect
+var firebaseConfig = {
   apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
   databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "siphala-lk"
-});
-const db = getDatabase(app);
-log("✅ Firebase Connected");
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var lessonsRef = db.ref('lessons');
 
-const dbRef = ref(db, 'lessons');
-
-window.save = function(){
-  status.innerText = "Status: Saving...";
-  log("Trying to save...");
-  push(dbRef, {
-    grade: grade.value, 
-    subject: subject.value, 
-    title: title.value,
-    time: Date.now()
-  }).then(()=>{
+// 2. Save Button Click
+document.getElementById('saveBtn').onclick = function() {
+  var grade = document.getElementById('grade').value;
+  var subject = document.getElementById('subject').value;
+  var title = document.getElementById('title').value;
+  
+  if(!grade || !subject || !title){ alert('Fill all fields'); return; }
+  
+  status.innerText = "Saving...";
+  lessonsRef.push({
+    grade: grade, 
+    subject: subject, 
+    title: title
+  }).then(function(){
     status.innerText = "✅ Saved Successfully!";
-    log("✅ Save Success");
-    grade.value='';subject.value='';title.value='';
-  }).catch((e)=>{
-    status.innerText = "❌ Save Failed!";
-    log("❌ ERROR: " + e.code + " - " + e.message); // meka wada
+    document.getElementById('grade').value='';
+    document.getElementById('subject').value='';
+    document.getElementById('title').value='';
+  }).catch(function(e){
+    status.innerText = "❌ Error: " + e.message;
   });
 }
 
-onValue(dbRef, (snap)=>{
-  let html = '';
-  snap.forEach(child=>{
-    let l = child.val();
-    html += `<p><b>${l.grade}</b> - ${l.subject} - ${l.title}</p>`
+// 3. Load Data Live
+lessonsRef.on('value', function(snapshot) {
+  var html = '';
+  snapshot.forEach(function(child) {
+    var l = child.val();
+    var key = child.key;
+    html += '<tr><td>'+l.grade+'</td><td>'+l.subject+'</td><td>'+l.title+'</td><td><button class="btn-del" onclick="delLesson(\''+key+'\')">Delete</button></td></tr>';
   });
-  list.innerHTML = html || 'No lessons yet';
-  log("✅ Data Loaded");
-}, (e)=>{
-  log("❌ READ ERROR: " + e.message);
+  document.getElementById('list').innerHTML = html || '<tr><td colspan="4">No lessons yet</td></tr>';
 });
+
+// 4. Delete Function
+function delLesson(key) {
+  if(confirm('Delete this?')){
+    db.ref('lessons/' + key).remove();
+  }
+}
 </script>
 </body>
 </html>
