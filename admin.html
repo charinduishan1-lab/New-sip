@@ -1,58 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SIPHLA Admin</title>
+<title>Admin Panel - SIPHLA LK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:#0f0f1a; color:#fff; min-height:100vh; padding:20px;}
+.glass{background: rgba(255,255,255,0.05); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); border-radius:24px;}
+.btn{padding:14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border:none; color:white; border-radius:15px; cursor:pointer; font-weight:600; margin:5px;}
+.input{width:100%; padding:15px; margin:10px 0; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; color:white; font-size:16px;}
+.input::placeholder{color:rgba(255,255,255,0.5)}
+h1{background: linear-gradient(90deg, #667eea, #f093fb); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700;}
+.lesson-item{display:flex; justify-content:space-between; align-items:center; padding:15px; margin:10px 0;}
+.del-btn{background:red;}
+</style>
 </head>
-<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
+<body>
 
-<h1>📊 SIPHLA Admin Panel</h1>
+<h1 style="text-align:center;margin-bottom:30px">🔒 Admin Panel</h1>
 
-<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px;margin-bottom:20px">
-  <h2>➕ Add New Lesson</h2>
-  <label>Grade:</label><br><input id="grade" placeholder="Ex: 10" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  <label>Subject:</label><br><input id="subject" placeholder="Ex: Science" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  <label>Title:</label><br><input id="title" placeholder="Ex: Cells" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  <label>YouTube Link:</label><br><input id="ytlink" placeholder="https://youtube.com/watch?v=" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
-  <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%">Save Lesson</button>
-  <p id="status" style="text-align:center;font-weight:bold"></p>
+<div id="loginBox" class="glass" style="padding:30px;max-width:500px;margin:auto">
+  <h2>Admin Login</h2>
+  <input id="adminPass" type="password" placeholder="Enter Admin Password" class="input">
+  <button onclick="checkAdmin()" class="btn" style="width:100%">Login</button>
 </div>
 
-<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px">
-  <h2>📝 Manage Lessons</h2>
-  <div id="list"></div>
+<div id="adminPanel" style="display:none;max-width:1000px;margin:auto">
+  <button onclick="logout()" class="btn">Logout</button>
+  <a href="index.html"><button class="btn" style="background:gray">View Site</button></a>
+
+  <div class="glass" style="padding:30px;margin-top:20px">
+    <h2>➕ Add New Lesson</h2>
+    <input id="grade" placeholder="Grade - Ex: Grade 6" class="input">
+    <input id="subject" placeholder="Subject - Ex: Science" class="input">
+    <input id="title" placeholder="Lesson Title" class="input">
+    <input id="ytlink" placeholder="YouTube Link" class="input">
+    <textarea id="desc" placeholder="Description" class="input" rows="3"></textarea>
+    <button onclick="addLesson()" class="btn" style="width:100%">Add Lesson</button>
+  </div>
+
+  <div class="glass" style="padding:30px;margin-top:20px">
+    <h2>📚 All Lessons</h2>
+    <div id="lessonList"></div>
+  </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-var firebaseConfig = {
-  apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
-  databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "siphala-lk"
-};
-firebase.initializeApp(firebaseConfig);
-var db = firebase.database();
-var lessonsRef = db.ref('lessons');
+var firebaseConfig = { apiKey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w", authDomain: "siphala-lk.firebaseapp.com", databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "siphala-lk" };
+firebase.initializeApp(firebaseConfig); var db = firebase.database();
 
-document.getElementById('saveBtn').onclick = function() {
-  lessonsRef.push({
-    grade:grade.value, subject:subject.value, title:title.value, ytlink:ytlink.value
-  }).then(function(){
-    status.innerText = "✅ Saved!"; status.style.color = "lightgreen";
-    grade.value='';subject.value='';title.value='';ytlink.value='';
+var ADMIN_PASSWORD = "siphlapro123"; // <-- meka wenas karanna
+
+function checkAdmin(){
+  if(document.getElementById('adminPass').value == ADMIN_PASSWORD){
+    document.getElementById('loginBox').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadLessons();
+  } else { alert("Wrong Password!"); }
+}
+
+function logout(){
+  document.getElementById('loginBox').style.display = 'block';
+  document.getElementById('adminPanel').style.display = 'none';
+}
+
+function addLesson(){
+  var data = {
+    grade: document.getElementById('grade').value,
+    subject: document.getElementById('subject').value,
+    title: document.getElementById('title').value,
+    ytlink: document.getElementById('ytlink').value,
+    description: document.getElementById('desc').value
+  }
+  if(!data.grade ||!data.subject ||!data.title){ alert("Fill all fields"); return; }
+  db.ref('lessons').push(data);
+  alert("Lesson Added Successfully!");
+  document.getElementById('grade').value=""; document.getElementById('subject').value=""; document.getElementById('title').value=""; document.getElementById('ytlink').value=""; document.getElementById('desc').value="";
+}
+
+function loadLessons(){
+  db.ref('lessons').on('value', function(snapshot){
+    var html = '';
+    snapshot.forEach(function(child){
+      var l = child.val();
+      html += `<div class="glass lesson-item">
+        <div><b>${l.grade} - ${l.subject}</b><br>${l.title}</div>
+        <button onclick="deleteLesson('${child.key}')" class="btn del-btn">Delete</button>
+      </div>`;
+    });
+    document.getElementById('lessonList').innerHTML = html;
   });
 }
 
-lessonsRef.on('value', function(snapshot) {
-  var html = '';
-  snapshot.forEach(function(child) {
-    var l = child.val(); var key = child.key;
-    html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between"><div><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div><button onclick="del(\'' + key + '\')" style="padding:8px 12px;background:#EF4444;color:white;border:none;border-radius:6px">Delete</button></div>';
-  });
-  list.innerHTML = html || '<p>No lessons</p>';
-});
-function del(key){ if(confirm('Delete?')){ db.ref('lessons/' + key).remove(); } }
+function deleteLesson(key){
+  if(confirm("Delete this lesson?")){
+    db.ref('lessons/' + key).remove();
+  }
+}
 </script>
 </body>
 </html>
