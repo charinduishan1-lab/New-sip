@@ -8,62 +8,29 @@
 
 <div id="app"></div>
 
+<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <script>
 var firebaseConfig = {
-  apiKey: "OYAGE_API_KEY_DANNA",
+  apiKey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w",
   authDomain: "siphala-lk.firebaseapp.com",
   databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "siphala-lk"
 };
 firebase.initializeApp(firebaseConfig);
-var auth = firebase.auth();
 var db = firebase.database();
 var allLessons = [];
-var currentUser = null;
+
+// Patan gattama direct grades pennawa
+showGrades();
 
 function getYouTubeID(url){
   if(!url) return '';
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
   var match = url.match(regExp);
   return (match&&match[7].length==11)? match[7] : '';
-}
-
-auth.onAuthStateChanged(user=>{
-  currentUser = user;
-  if(user){ showGrades(); } 
-  else { showLogin(); }
-});
-
-function showLogin(){
-  app.innerHTML = `
-  <div style="display:flex;align-items:center;justify-content:center;height:100vh;padding:20px">
-  <div style="background:rgba(255,255,255,0.15);padding:30px;border-radius:15px;width:100%;max-width:400px">
-  <h2 style="text-align:center">📚 SIPHLA LK Login</h2>
-  <input id="email" type="email" placeholder="Email" style="width:100%;padding:12px;margin:10px 0;border:none;border-radius:8px">
-  <input id="pass" type="password" placeholder="Password" style="width:100%;padding:12px;margin:10px 0;border:none;border-radius:8px">
-  <button onclick="login()" style="width:100%;padding:12px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer">Login</button>
-  <button onclick="register()" style="width:100%;padding:12px;background:transparent;color:white;border:2px solid white;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:10px">Create Account</button>
-  <p id="msg" style="text-align:center;margin-top:15px;color:yellow"></p>
-  </div></div>`;
-}
-
-function login(){
-  auth.signInWithEmailAndPassword(email.value, pass.value)
-.catch(e=>{ msg.innerText = e.message })
-}
-
-function register(){
-  auth.createUserWithEmailAndPassword(email.value, pass.value)
-.then(user=>{
-    db.ref('students/' + user.user.uid).set({
-      email: email.value,
-      name: email.value.split('@')[0]
-    });
-  })
-.catch(e=>{ msg.innerText = e.message })
 }
 
 function showGrades(){
@@ -73,22 +40,20 @@ function showGrades(){
       var l = child.val(); l.key = child.key; allLessons.push(l);
     });
     var grades = [...new Set(allLessons.map(l => l.grade))].sort();
-    var html = `<div style="padding:15px;display:flex;justify-content:space-between"><span id="profileName">Hi</span><button onclick="logout()">Logout</button></div>`;
-    html += '<h2 style="text-align:center">Select Grade</h2><div style="padding:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:15px">';
+    var html = '<h2 style="text-align:center;padding-top:20px">📚 SIPHLA LK - Select Grade</h2><div style="padding:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:15px">';
     grades.forEach(g => {
-      html += `<div onclick="showSubjects('${g}')" style="background:white;color:#333;padding:20px;border-radius:12px;text-align:center;cursor:pointer">${g}</div>`;
+      html += `<div onclick="showSubjects('${g}')" style="background:white;color:#333;padding:30px;border-radius:12px;text-align:center;cursor:pointer;font-weight:bold">${g}</div>`;
     });
     html += '</div>';
     app.innerHTML = html;
-    db.ref('students/' + currentUser.uid).once('value').then(s=>{ profileName.innerText = 'Hi ' + s.val().name })
   });
 }
 
 function showSubjects(grade){
   var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))];
-  var html = `<button onclick="showGrades()">← Back</button><h2 style="text-align:center">Select Subject</h2><div style="padding:20px">`;
+  var html = `<button onclick="showGrades()" style="margin:15px;padding:10px;border:none;border-radius:8px;cursor:pointer">← Back</button><h2 style="text-align:center">Select Subject</h2><div style="padding:20px">`;
   subjects.forEach(s => {
-    html += `<div onclick="showLessons('${grade}','${s}')" style="background:white;color:#333;padding:20px;margin:10px 0;border-radius:12px;cursor:pointer">${s}</div>`;
+    html += `<div onclick="showLessons('${grade}','${s}')" style="background:white;color:#333;padding:20px;margin:10px 0;border-radius:12px;cursor:pointer;font-weight:bold">${s}</div>`;
   });
   html += '</div>';
   app.innerHTML = html;
@@ -96,7 +61,7 @@ function showSubjects(grade){
 
 function showLessons(grade, subject){
   var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
-  var html = `<button onclick="showSubjects('${grade}')">← Back</button><h2 style="text-align:center">Select Lesson</h2><div style="padding:20px">`;
+  var html = `<button onclick="showSubjects('${grade}')" style="margin:15px;padding:10px;border:none;border-radius:8px;cursor:pointer">← Back</button><h2 style="text-align:center">Select Lesson</h2><div style="padding:20px">`;
   lessons.forEach(l => {
     html += `<div onclick="playLesson('${l.key}')" style="background:rgba(255,255,255,0.2);padding:20px;margin:10px 0;border-radius:15px;cursor:pointer"><h3>${l.title}</h3></div>`;
   });
@@ -108,12 +73,12 @@ function playLesson(key){
   var l = allLessons.find(x => x.key == key);
   var videoID = getYouTubeID(l.ytlink);
   var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
-  var html = `<button onclick="showLessons('${l.grade}','${l.subject}')">← Back</button><div style="padding:20px"><h2>${l.title}</h2>`;
-  html += `<iframe width="100%" height="400" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen></iframe></div>`;
+  var html = `<button onclick="showLessons('${l.grade}','${l.subject}')" style="margin:15px;padding:10px;border:none;border-radius:8px;cursor:pointer">← Back</button><div style="padding:20px"><h2>${l.title}</h2>`;
+  html += `<iframe width="100%" height="400" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen style="border-radius:12px"></iframe>`;
+  if(l.description) html += `<p style="margin-top:15px">${l.description}</p>`;
+  html += `</div>`;
   app.innerHTML = html;
 }
-
-function logout(){ auth.signOut(); }
 </script>
 </body>
 </html>
