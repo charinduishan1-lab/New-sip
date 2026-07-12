@@ -1,42 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIPHLA Admin</title>
-<style>
-body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:'Segoe UI';padding:20px;min-height:100vh}
-.box{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);padding:25px;border-radius:20px;margin-bottom:20px}
-input{width:100%;padding:14px;margin:8px 0;border:none;border-radius:10px;background:rgba(255,255,255,0.2);color:#fff;font-size:16px}
-button{padding:14px 25px;background:#8B5CF6;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:16px;margin:5px}
-table{width:100%;margin-top:20px}td,th{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.2)}
-.btn-del{background:#EF4444}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
+<body style="background:#667eea;color:#fff;font-family:Arial;padding:20px">
 
 <h1>📊 SIPHLA LK Admin Panel</h1>
 
-<div class="box">
+<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px;margin-bottom:20px">
   <h2>➕ Add New Lesson</h2>
-  <input id="grade" placeholder="Grade: 10, 11, A/L">
-  <input id="subject" placeholder="Subject">
-  <input id="title" placeholder="Lesson Title">
-  <button id="saveBtn">Save Lesson</button>
+  <input id="grade" placeholder="Grade: 10, 11, A/L" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
+  <input id="subject" placeholder="Subject" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
+  <input id="title" placeholder="Lesson Title" style="width:95%;padding:12px;margin:5px 0;border:none;border-radius:8px">
+  <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold">Save Lesson</button>
   <p id="status"></p>
 </div>
 
-<div class="box">
+<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px">
   <h2>📝 All Lessons</h2>
-  <table><tbody id="list"></tbody></table>
+  <div id="list"></div>
 </div>
 
-<!-- FIREBASE SCRIPTS -->
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// 1. Firebase Connect
 var firebaseConfig = {
   apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
   databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -46,7 +37,7 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 var lessonsRef = db.ref('lessons');
 
-// 2. Save Button Click
+// Save
 document.getElementById('saveBtn').onclick = function() {
   var grade = document.getElementById('grade').value;
   var subject = document.getElementById('subject').value;
@@ -55,11 +46,7 @@ document.getElementById('saveBtn').onclick = function() {
   if(!grade || !subject || !title){ alert('Fill all fields'); return; }
   
   status.innerText = "Saving...";
-  lessonsRef.push({
-    grade: grade, 
-    subject: subject, 
-    title: title
-  }).then(function(){
+  lessonsRef.push({grade:grade, subject:subject, title:title}).then(function(){
     status.innerText = "✅ Saved Successfully!";
     document.getElementById('grade').value='';
     document.getElementById('subject').value='';
@@ -69,20 +56,23 @@ document.getElementById('saveBtn').onclick = function() {
   });
 }
 
-// 3. Load Data Live
+// Load
 lessonsRef.on('value', function(snapshot) {
   var html = '';
   snapshot.forEach(function(child) {
     var l = child.val();
     var key = child.key;
-    html += '<tr><td>'+l.grade+'</td><td>'+l.subject+'</td><td>'+l.title+'</td><td><button class="btn-del" onclick="delLesson(\''+key+'\')">Delete</button></td></tr>';
+    html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
+    html += '<div><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div>';
+    html += '<button onclick="delLesson(\'' + key + '\')" style="padding:10px 15px;background:#EF4444;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold">Delete</button>';
+    html += '</div>';
   });
-  document.getElementById('list').innerHTML = html || '<tr><td colspan="4">No lessons yet</td></tr>';
+  document.getElementById('list').innerHTML = html || '<p>No lessons yet</p>';
 });
 
-// 4. Delete Function
+// Delete
 function delLesson(key) {
-  if(confirm('Delete this?')){
+  if(confirm('Delete this lesson?')){
     db.ref('lessons/' + key).remove();
   }
 }
