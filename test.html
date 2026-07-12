@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body style="background:#667eea; color:white; font-family:Poppins; padding:30px">
+<h1>Firebase Test</h1>
+<input id="t" placeholder="Type here"><button onclick="save()">Save</button>
+<p id="out"></p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
+  databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "siphala-lk"
+});
+const db = getDatabase(app);
+
+function save(){
+  push(ref(db,'test'), {msg:t.value});
+  t.value='';
+}
+
+onValue(ref(db,'test'), (snap)=>{
+  out.innerText = JSON.stringify(snap.val());
+});
+</script>
+</body>
+</html>
