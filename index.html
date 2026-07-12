@@ -23,7 +23,6 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 var lessonsRef = db.ref('lessons');
 
-// YouTube ID ganna function eka
 function getYouTubeID(url){
   if(!url) return '';
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -39,14 +38,14 @@ lessonsRef.on('value', function(snapshot) {
     var l = child.val();
     var videoID = getYouTubeID(l.ytlink);
     var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
-    var embedLink = videoID? 'https://www.youtube.com/embed/' + videoID : '';
+    // WENAS 1: youtube-nocookie.com use kale
+    var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
 
     html += '<div style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:20px">';
     html += '<span style="background:#8B5CF6;padding:5px 12px;border-radius:20px;font-size:12px">Grade ' + l.grade + ' - ' + l.subject + '</span>';
     html += '<h3 style="margin:15px 0">' + l.title + '</h3>';
 
     if(videoID){
-      // Thumbnail + Play Button
       html += '<div id="vid-' + child.key + '" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="playVideo(\'' + child.key + '\',\'' + embedLink + '\')">';
       html += '<img src="' + thumbnail + '" style="width:100%;display:block">';
       html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div>';
@@ -54,16 +53,15 @@ lessonsRef.on('value', function(snapshot) {
     } else {
       html += '<p style="opacity:0.7">No video link</p>';
     }
-
     html += '</div>';
   });
   lessons.innerHTML = html;
 });
 
-// Video play karana function
 function playVideo(id, embedLink){
+  // WENAS 2: privacy mode params add kale
   document.getElementById('vid-' + id).innerHTML =
-  '<iframe width="100%" height="250" src="' + embedLink + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
+  '<iframe width="100%" height="250" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
 }
 </script>
 </body>
