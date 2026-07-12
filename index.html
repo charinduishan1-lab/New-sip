@@ -3,19 +3,13 @@
 <head>
 <title>SIPHLA LK - LMS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-select, button{padding:12px;border:none;border-radius:8px;width:100%;margin:10px 0;font-size:16px}
-.card{background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer;transition:0.3s}
-.card:hover{background:rgba(255,255,255,0.25)}
-.backBtn{background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px}
-</style>
 </head>
-<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
+<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px;margin:0">
 
 <h1 style="text-align:center">📚 SIPHLA LK</h1>
-<p style="text-align:center">Select Grade → Subject → Lesson</p>
+<p style="text-align:center;margin-bottom:30px">Select Grade → Subject → Lesson</p>
 
-<div id="app" style="max-width:800px;margin:30px auto"></div>
+<div id="app" style="max-width:900px;margin:0 auto"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -30,7 +24,6 @@ var db = firebase.database();
 var lessonsRef = db.ref('lessons');
 var allLessons = [];
 
-// YouTube ID ganna
 function getYouTubeID(url){
   if(!url) return '';
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -38,7 +31,6 @@ function getYouTubeID(url){
   return (match&&match[7].length==11)? match[7] : '';
 }
 
-// Data load
 lessonsRef.on('value', function(snapshot) {
   allLessons = [];
   snapshot.forEach(function(child) {
@@ -49,47 +41,61 @@ lessonsRef.on('value', function(snapshot) {
   showGrades();
 });
 
-// STEP 1: Grades penanna
+// STEP 1: Grades - Card Grid
 function showGrades(){
-  var grades = [...new Set(allLessons.map(l => l.grade))].sort();
-  var html = '<h2>1. Select Grade</h2>';
-  if(grades.length == 0) html += '<p>No lessons yet</p>';
-  grades.forEach(g => {
-    html += '<div class="card" onclick="showSubjects(\'' + g + '\')"><h3>Grade ' + g + '</h3></div>';
+  var grades = [...new Set(allLessons.map(l => l.grade))].sort((a,b)=>{
+    if(a=='A/L') return 1; if(b=='A/L') return -1; return a-b;
   });
+
+  var html = '<h2 style="text-align:center">1. Select Grade</h2>';
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px">'; // 3 columns
+
+  if(grades.length == 0) html += '<p style="grid-column:span 3;text-align:center">No lessons yet</p>';
+
+  grades.forEach(g => {
+    var displayName = g == 'A/L'? 'A Level' : 'Grade ' + g;
+    html += '<div onclick="showSubjects(\'' + g + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px 10px;text-align:center;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.2)">';
+    html += '<div style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);width:70px;height:70px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white">' + g + '</div>';
+    html += '<div style="color:#333;font-weight:600;font-size:14px">' + displayName + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
   app.innerHTML = html;
 }
 
-// STEP 2: Subjects penanna
+// STEP 2: Subjects
 function showSubjects(grade){
   var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))].sort();
-  var html = '<button class="backBtn" onclick="showGrades()">← Back to Grades</button>';
-  html += '<h2>2. Select Subject - Grade ' + grade + '</h2>';
+  var html = '<button onclick="showGrades()" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Grades</button>';
+  html += '<h2 style="text-align:center">2. Select Subject</h2>';
+  html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px">';
   subjects.forEach(s => {
-    html += '<div class="card" onclick="showLessons(\'' + grade + '\',\'' + s + '\')"><h3>' + s + '</h3></div>';
+    html += '<div onclick="showLessons(\'' + grade + '\',\'' + s + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:#333;font-weight:600;box-shadow:0 4px 8px rgba(0,0,0,0.2)">' + s + '</div>';
   });
+  html += '</div>';
   app.innerHTML = html;
 }
 
-// STEP 3: Lessons penanna
+// STEP 3: Lessons
 function showLessons(grade, subject){
   var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
-  var html = '<button class="backBtn" onclick="showSubjects(\'' + grade + '\')">← Back to Subjects</button>';
-  html += '<h2>3. Select Lesson - ' + subject + '</h2>';
+  var html = '<button onclick="showSubjects(\'' + grade + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Subjects</button>';
+  html += '<h2 style="text-align:center">3. Select Lesson</h2>';
   lessons.forEach(l => {
-    html += '<div class="card" onclick="playLesson(\'' + l.key + '\')"><h3>' + l.title + '</h3></div>';
+    html += '<div onclick="playLesson(\'' + l.key + '\')" style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer">';
+    html += '<h3 style="margin:0">' + l.title + '</h3></div>';
   });
   app.innerHTML = html;
 }
 
-// STEP 4: Video play karanna
+// STEP 4: Video
 function playLesson(key){
   var l = allLessons.find(x => x.key == key);
   var videoID = getYouTubeID(l.ytlink);
   var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
   var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
 
-  var html = '<button class="backBtn" onclick="showLessons(\'' + l.grade + '\',\'' + l.subject + '\')">← Back to Lessons</button>';
+  var html = '<button onclick="showLessons(\'' + l.grade + '\',\'' + l.subject + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Lessons</button>';
   html += '<h2>' + l.title + '</h2>';
   html += '<p>Grade ' + l.grade + ' - ' + l.subject + '</p>';
 
@@ -104,7 +110,6 @@ function playLesson(key){
   app.innerHTML = html;
 }
 
-// Video start
 function startVideo(key, embedLink){
   document.getElementById('vid-' + key).innerHTML =
   '<iframe width="100%" height="400" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
