@@ -3,193 +3,187 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPHLA LK Admin Panel</title>
+<title>SIPHLA LK Super Admin</title>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-  body { background: #f5f7fa; color: #333; }
-  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-  
-  /* Login */
-  .login-box { max-width: 400px; margin: 100px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-  .login-box h1 { text-align: center; color: #4F46E5; margin-bottom: 20px; }
-  .input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-  .btn { width: 100%; padding: 12px; background: #4F46E5; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+  body { background: #f0f2f5; }
+  .container { max-width: 1300px; margin: 0 auto; padding: 20px; }
+  .login-box { max-width: 400px; margin: 80px auto; padding: 35px; background: white; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+  .input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+  .btn { padding: 12px 20px; background: #4F46E5; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
   .btn:hover { background: #4338CA; }
-  
-  /* Dashboard */
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-  .header h1 { color: #4F46E5; }
-  .logout { background: #EF4444; padding: 10px 20px; }
-  
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-  .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
-  .card h3 { font-size: 32px; color: #4F46E5; }
-  .card p { color: #666; }
-  
-  .section { background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-  .section h2 { margin-bottom: 20px; color: #333; }
-  
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+  .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+  .section { background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
   .hidden { display: none; }
-  
-  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  table { width: 100%; border-collapse: collapse; }
   th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
   th { background: #4F46E5; color: white; }
-  .action-btn { padding: 6px 12px; margin: 2px; border: none; border-radius: 5px; cursor: pointer; }
-  .edit { background: #F59E0B; color: white; }
-  .delete { background: #EF4444; color: white; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+  .tab { padding: 10px 20px; background: #ddd; border-radius: 8px; cursor: pointer; }
+  .tab.active { background: #4F46E5; color: white; }
+  .success { color: green; font-size: 14px; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginScreen" class="container">
   <div class="login-box">
-    <h1>🔐 SIPHLA LK Admin</h1>
+    <h1 style="text-align:center; color:#4F46E5;">🔐 SIPHLA LK Admin</h1>
     <input type="email" id="email" class="input" placeholder="Admin Email">
     <input type="password" id="password" class="input" placeholder="Password">
-    <button onclick="login()" class="btn">Login</button>
-    <p style="text-align:center; margin-top:10px; font-size:12px; color:#888;">Default: siphalakofficial@gmail.com / Siphala@2026</p>
+    <button onclick="login()" class="btn" style="width:100%;">Login</button>
   </div>
 </div>
 
-<!-- DASHBOARD SCREEN -->
+<!-- DASHBOARD -->
 <div id="dashboardScreen" class="container hidden">
   <div class="header">
-    <h1>📚 SIPHLA LK Admin Dashboard</h1>
-    <button onclick="logout()" class="btn logout">Logout</button>
+    <h1>📚 SIPHLA LK Super Admin</h1>
+    <button onclick="logout()" class="btn" style="background:#EF4444;">Logout</button>
   </div>
 
-  <!-- Stats -->
-  <div class="stats">
-    <div class="card"><h3>50,000+</h3><p>Students</p></div>
-    <div class="card"><h3>1,000+</h3><p>Lessons</p></div>
-    <div class="card"><h3>Grade 3 - A/L</h3><p>Classes</p></div>
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dashboard')">Dashboard</div>
+    <div class="tab" onclick="showTab('lessons')">Lessons</div>
+    <div class="tab" onclick="showTab('users')">Users</div>
+    <div class="tab" onclick="showTab('announce')">Announcements</div>
+    <div class="tab" onclick="showTab('settings')">Settings</div>
   </div>
 
-  <!-- Add Lesson Form -->
-  <div class="section">
-    <h2>➕ Add New Lesson</h2>
-    <form onsubmit="addLesson(event)" class="form-grid">
-      <select id="grade" class="input" required>
-        <option value="">Select Grade</option>
-        <option value="3">Grade 3</option>
-        <option value="4">Grade 4</option>
-        <option value="5">Grade 5</option>
-        <option value="10">Grade 10</option>
-        <option value="11">Grade 11</option>
-        <option value="A/L">A/L</option>
-      </select>
-      <input type="text" id="subject" class="input" placeholder="Subject" required>
-      <input type="number" id="lessonNo" class="input" placeholder="Lesson No" required>
-      <input type="text" id="title" class="input" placeholder="Lesson Title" required>
-      <input type="url" id="youtube" class="input" placeholder="YouTube Link">
-      <input type="url" id="pdf" class="input" placeholder="PDF Link">
-      <button type="submit" class="btn" style="grid-column: 1/-1;">Add Lesson</button>
-    </form>
+  <!-- TAB 1: DASHBOARD -->
+  <div id="dashboard" class="tabContent">
+    <div class="stats">
+      <div class="card"><h2 id="totalLessons">0</h2><p>Total Lessons</p></div>
+      <div class="card"><h2>50,000+</h2><p>Students</p></div>
+      <div class="card"><h2 id="totalUsers">0</h2><p>WhatsApp Users</p></div>
+    </div>
+    <div class="section">
+      <h2>Quick Actions</h2>
+      <button class="btn" onclick="showTab('lessons')">+ Add New Lesson</button>
+      <button class="btn" onclick="exportData()">Export All Data</button>
+      <p id="syncStatus" class="success"></p>
+    </div>
   </div>
 
-  <!-- Lessons Table -->
-  <div class="section">
-    <h2>📝 All Lessons</h2>
-    <table id="lessonTable">
-      <thead>
-        <tr>
-          <th>Grade</th><th>Subject</th><th>Title</th><th>YouTube</th><th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="lessonBody">
-        <tr>
-          <td>10</td><td>Buddhism</td><td>අතියෙන් සැනහී සිටින බෝසතාණෝ</td>
-          <td><a href="#" target="_blank">Link</a></td>
-          <td>
-            <button class="action-btn edit" onclick="alert('Edit Feature')">Edit</button>
-            <button class="action-btn delete" onclick="alert('Delete Feature')">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- TAB 2: LESSONS -->
+  <div id="lessons" class="tabContent hidden">
+    <div class="section">
+      <h2>➕ Add New Lesson</h2>
+      <form onsubmit="addLesson(event)" class="form-grid">
+        <select id="grade" class="input" required><option>Select Grade</option><option>3</option><option>4</option><option>5</option><option>10</option><option>11</option><option>A/L</option></select>
+        <input type="text" id="subject" class="input" placeholder="Subject" required>
+        <input type="number" id="lessonNo" class="input" placeholder="Lesson No" required>
+        <input type="text" id="title" class="input" placeholder="Lesson Title" required>
+        <input type="url" id="youtube" class="input" placeholder="YouTube Link">
+        <input type="url" id="pdf" class="input" placeholder="PDF Link">
+        <button type="submit" class="btn" style="grid-column:1/-1;">Save & Publish to Website</button>
+      </form>
+    </div>
+    <div class="section">
+      <h2>📝 All Lessons</h2>
+      <table><thead><tr><th>Grade</th><th>Subject</th><th>Title</th><th>Action</th></tr></thead><tbody id="lessonBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- TAB 3: USERS -->
+  <div id="users" class="tabContent hidden">
+    <div class="section">
+      <h2>👥 WhatsApp Users</h2>
+      <table><thead><tr><th>Phone</th><th>Grade</th><th>Joined</th></tr></thead><tbody id="userBody"></tbody></table>
+    </div>
+  </div>
+
+  <!-- TAB 4: ANNOUNCEMENTS -->
+  <div id="announce" class="tabContent hidden">
+    <div class="section">
+      <h2>📢 Send Announcement to All Students</h2>
+      <textarea id="annText" class="input" rows="4" placeholder="Type announcement..."></textarea>
+      <button class="btn" onclick="sendAnnouncement()">Send to Website Banner</button>
+      <p id="annStatus"></p>
+    </div>
+  </div>
+
+  <!-- TAB 5: SETTINGS -->
+  <div id="settings" class="tabContent hidden">
+    <div class="section">
+      <h2>⚙️ Website Settings</h2>
+      <input type="text" id="siteTitle" class="input" placeholder="Website Title">
+      <input type="text" id="contactEmail" class="input" placeholder="Contact Email">
+      <button class="btn" onclick="saveSettings()">Save Settings</button>
+    </div>
   </div>
 </div>
 
 <script>
   const ADMIN_EMAIL = "siphalakofficial@gmail.com";
   const ADMIN_PASSWORD = "Siphala@2026";
-  let lessons = JSON.parse(localStorage.getItem('siphala_lessons')) || [];
+  const DATA_URL = "https://siphalalk.vercel.app/data.json"; // 👈 Data save වෙන file එක
 
-  // Check if already logged in
-  if(localStorage.getItem('adminLogin') === 'true') {
-    showDashboard();
-  }
+  if(localStorage.getItem('adminLogin') === 'true') showDashboard();
 
   function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      localStorage.setItem('adminLogin', 'true');
-      showDashboard();
-    } else {
-      alert('වැරදි Email හෝ Password');
-    }
+    if(document.getElementById('email').value === ADMIN_EMAIL && document.getElementById('password').value === ADMIN_PASSWORD) {
+      localStorage.setItem('adminLogin', 'true'); showDashboard();
+    } else alert('Wrong Email or Password');
   }
+  function logout() { localStorage.removeItem('adminLogin'); location.reload(); }
+  function showDashboard() { document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('dashboardScreen').classList.remove('hidden'); loadData(); }
+  function showTab(tab) { document.querySelectorAll('.tabContent').forEach(e=>e.classList.add('hidden')); document.getElementById(tab).classList.remove('hidden'); document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active')); event.target.classList.add('active'); }
 
-  function logout() {
-    localStorage.removeItem('adminLogin');
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('dashboardScreen').classList.add('hidden');
-  }
+  let appData = {lessons:[], users:[], announcement:"", settings:{}};
 
-  function showDashboard() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('dashboardScreen').classList.remove('hidden');
-    loadLessons();
+  async function loadData() {
+    const res = await fetch(DATA_URL).catch(()=>{});
+    if(res && res.ok) appData = await res.json();
+    renderLessons(); renderUsers(); document.getElementById('totalLessons').innerText = appData.lessons.length;
   }
 
   function addLesson(e) {
     e.preventDefault();
-    const lesson = {
-      grade: document.getElementById('grade').value,
-      subject: document.getElementById('subject').value,
-      no: document.getElementById('lessonNo').value,
-      title: document.getElementById('title').value,
-      youtube: document.getElementById('youtube').value,
-      pdf: document.getElementById('pdf').value
-    };
-    
-    lessons.push(lesson);
-    localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
-    alert('Lesson Added Successfully! ✅');
-    e.target.reset();
-    loadLessons();
+    appData.lessons.push({
+      grade: grade.value, subject: subject.value, no: lessonNo.value, 
+      title: title.value, youtube: youtube.value, pdf: pdf.value, date: new Date().toLocaleDateString()
+    });
+    saveData(); e.target.reset(); alert('Lesson Published! ✅');
   }
 
-  function loadLessons() {
-    const tbody = document.getElementById('lessonBody');
-    tbody.innerHTML = '';
-    lessons.forEach((l, i) => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${l.grade}</td>
-          <td>${l.subject}</td>
-          <td>${l.title}</td>
-          <td><a href="${l.youtube}" target="_blank">Watch</a></td>
-          <td>
-            <button class="action-btn delete" onclick="deleteLesson(${i})">Delete</button>
-          </td>
-        </tr>
-      `;
+  function renderLessons() {
+    lessonBody.innerHTML = ''; appData.lessons.forEach((l,i)=>{
+      lessonBody.innerHTML += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button onclick="deleteLesson(${i})" class="btn" style="background:red;">Delete</button></td></tr>`;
     });
   }
+  function deleteLesson(i){ if(confirm('Delete?')){ appData.lessons.splice(i,1); saveData(); }}
 
-  function deleteLesson(index) {
-    if(confirm('Delete this lesson?')) {
-      lessons.splice(index, 1);
-      localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
-      loadLessons();
-    }
+  function renderUsers() {
+    userBody.innerHTML = '<tr><td>071xxxxxxx</td><td>Grade 10</td><td>2026-04-01</td></tr>'; // Demo
+    document.getElementById('totalUsers').innerText = appData.users.length;
+  }
+
+  async function saveData() {
+    // Vercel Blob / API එකට Save කරනවා
+    await fetch('/api/save-data', { method: 'POST', body: JSON.stringify(appData) });
+    document.getElementById('syncStatus').innerText = '✅ Synced to siphalalk.vercel.app at ' + new Date().toLocaleTimeString();
+    loadData();
+  }
+  
+  function sendAnnouncement() {
+    appData.announcement = annText.value;
+    saveData();
+    document.getElementById('annStatus').innerText = '✅ Banner Updated on Website';
+  }
+  function saveSettings() {
+    appData.settings = {title: siteTitle.value, email: contactEmail.value};
+    saveData(); alert('Settings Saved');
+  }
+  function exportData() {
+    const blob = new Blob([JSON.stringify(appData, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'siphala-backup.json'; a.click();
   }
 </script>
-
 </body>
 </html>
