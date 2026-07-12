@@ -6,51 +6,42 @@
 <title>SIPHLA LK Dashboard</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
-  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; color:#fff; padding:20px; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; color:#fff; padding:15px; }
 
  .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; }
 
- .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
- .header h1 { display:flex; align-items:center; gap:10px; font-size:28px; }
- .logout { padding:10px 20px; background:#EF4444; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; }
+ .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:0 5px; }
+ .header h1 { display:flex; align-items:center; gap:10px; font-size:26px; }
+ .logout { padding:10px 18px; background:#EF4444; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; }
 
  .tabs { display:flex; gap:10px; margin-bottom:20px; }
- .tab { padding:12px 20px; border-radius:12px; cursor:pointer; background: rgba(255,255,255,0.15); font-weight:500; transition:0.3s; }
+ .tab { padding:12px 20px; border-radius:12px; cursor:pointer; background: rgba(255,255,255,0.15); font-weight:500; }
  .tab.active { background: linear-gradient(90deg, #6366F1, #8B5CF6); }
 
- .section { padding: 25px; margin-bottom: 20px; }
- .section h2 { margin-bottom:15px; display:flex; align-items:center; gap:8px; }
+ .section { padding: 20px; margin-bottom: 20px; }
+ .section h2 { margin-bottom:15px; display:flex; align-items:center; gap:8px; font-size:18px; }
 
  .input { width:100%; padding:14px; margin:10px 0; border:none; border-radius:10px; background: rgba(255,255,255,0.15); color:#fff; font-size:15px; }
  .input::placeholder{color:rgba(255,255,255,0.7)}
 
  .btn { padding:12px 20px; background: linear-gradient(90deg, #6366F1, #8B5CF6); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; }
- .btn:hover { transform: translateY(-2px); }
- .btn-sm { padding:6px 12px; font-size:12px; margin:2px; }
+ .btn-sm { padding:8px 12px; font-size:13px; margin:2px; border-radius:8px; }
  .btn-edit { background:#F59E0B; }
  .btn-delete { background:#EF4444; }
 
-  table { width:100%; border-collapse: collapse; }
-  th, td { padding:14px; text-align:left; }
-  th { opacity:0.8; }
+  /* TABLE FIX - IMPORTANT */
+ .table-wrapper { overflow-x: auto; width:100%; }
+  table { width:100%; min-width: 500px; border-collapse: collapse; }
+  th, td { padding:14px 10px; text-align:left; white-space: nowrap; }
+  th { opacity:0.9; font-weight:600; }
   tr:hover { background: rgba(255,255,255,0.08); }
 
- .toast { position:fixed; top:20px; right:20px; background:#4ADE80; color:#000; padding:14px 20px; border-radius:10px; font-weight:600; display:none; animation: slideIn 0.3s; }
-  @keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
-
-  /* Mobile Cards */
-  @media(max-width:768px){
-    table, thead, tbody, th, td, tr { display:block; }
-    thead { display:none; }
-    tr { margin-bottom:15px; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px; }
-    td { border:none; display:flex; justify-content:space-between; padding:8px; }
-    td::before { content: attr(data-label); font-weight:600; opacity:0.8; }
-  }
+ .toast { position:fixed; top:20px; right:20px; background:#4ADE80; color:#000; padding:14px 20px; border-radius:10px; font-weight:600; display:none; z-index:999; }
 </style>
 </head>
 <body>
 
-<div class="toast" id="toast">✅ Lesson Saved Successfully!</div>
+<div class="toast" id="toast">✅ Saved!</div>
 
 <div class="header">
   <h1>📊 Dashboard</h1>
@@ -75,30 +66,32 @@
   <div class="section glass">
     <h2>➕ Add New Lesson</h2>
     <input type="text" id="grade" class="input" placeholder="Grade e.g: 10, 11, A/L">
-    <input type="text" id="subject" class="input" placeholder="Subject e.g: Buddhism">
+    <input type="text" id="subject" class="input" placeholder="Subject">
     <input type="text" id="title" class="input" placeholder="Lesson Title">
-    <input type="url" id="youtube" class="input" placeholder="YouTube Link (Optional)">
-    <input type="url" id="pdf" class="input" placeholder="PDF Link (Optional)">
     <button onclick="addLesson()" class="btn">Save Lesson</button>
   </div>
 
   <div class="section glass">
     <h2>📝 All Lessons</h2>
-    <input type="text" id="search" class="input" placeholder="🔍 Search by Subject or Title..." onkeyup="loadLessons()">
-    <table>
-      <thead>
-        <tr>
-          <th>Grade</th><th>Subject</th><th>Title</th><th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="lessonBody"></tbody>
-    </table>
+    <div class="table-wrapper"> <!-- 👈 Meka nisa scroll wenawa -->
+      <table>
+        <thead>
+          <tr>
+            <th>Grade</th>
+            <th>Subject</th>
+            <th>Title</th>
+            <th>Action</th> <!-- 👈 meka dan penawa -->
+          </tr>
+        </thead>
+        <tbody id="lessonBody"></tbody>
+      </table>
+    </div>
+    <p style="font-size:12px; opacity:0.7; margin-top:10px;">Tip: Table eka dakata swipe karanna 👉</p>
   </div>
 </div>
 
 <script>
   let lessons = JSON.parse(localStorage.getItem('siphala_lessons')) || [];
-  let editIndex = -1;
 
   window.onload = loadLessons;
 
@@ -113,44 +106,33 @@
     const toast = document.getElementById('toast');
     toast.innerText = msg;
     toast.style.display = 'block';
-    setTimeout(()=>toast.style.display='none', 3000);
+    setTimeout(()=>toast.style.display='none', 2000);
   }
 
   function addLesson() {
     const lesson = {
-      grade:grade.value, subject:subject.value, title:title.value,
-      youtube:youtube.value, pdf:pdf.value
+      grade:grade.value, subject:subject.value, title:title.value
     };
-    if(!lesson.grade ||!lesson.subject ||!lesson.title) { alert('Please fill Grade, Subject, Title'); return; }
-
-    if(editIndex > -1) {
-      lessons[editIndex] = lesson;
-      editIndex = -1;
-      showToast('✅ Lesson Updated!');
-    } else {
-      lessons.push(lesson);
-      showToast('✅ Lesson Added!');
-    }
-
+    if(!lesson.grade ||!lesson.subject ||!lesson.title) { alert('Please fill all fields'); return; }
+    lessons.push(lesson);
     localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
     document.querySelectorAll('#lessons.input').forEach(i=>i.value='');
+    showToast('✅ Lesson Saved!');
     loadLessons();
   }
 
   function loadLessons() {
-    const search = document.getElementById('search').value.toLowerCase();
     const lessonBody = document.getElementById('lessonBody');
     lessonBody.innerHTML = '';
     document.getElementById('totalLessons').innerText = lessons.length;
 
-    lessons.filter(l => l.subject.toLowerCase().includes(search) || l.title.toLowerCase().includes(search))
-   .forEach((l,i)=>{
+    lessons.forEach((l,i)=>{
       lessonBody.innerHTML += `
         <tr>
-          <td data-label="Grade">${l.grade}</td>
-          <td data-label="Subject">${l.subject}</td>
-          <td data-label="Title">${l.title}</td>
-          <td data-label="Action">
+          <td>${l.grade}</td>
+          <td>${l.subject}</td>
+          <td>${l.title}</td>
+          <td>
             <button class="btn btn-sm btn-edit" onclick="editLesson(${i})">Edit</button>
             <button class="btn btn-sm btn-delete" onclick="deleteLesson(${i})">Delete</button>
           </td>
@@ -162,10 +144,8 @@
   function editLesson(i) {
     const l = lessons[i];
     grade.value = l.grade; subject.value = l.subject; title.value = l.title;
-    youtube.value = l.youtube; pdf.value = l.pdf;
-    editIndex = i;
-    showTab('lessons', document.querySelectorAll('.tab')[1]);
-    window.scrollTo(0,0);
+    lessons.splice(i,1); // Edit karala save karaddi aluthen add wenawa
+    showToast('✏️ Editing...');
   }
 
   function deleteLesson(i) {
@@ -173,7 +153,7 @@
       lessons.splice(i,1);
       localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
       loadLessons();
-      showToast('🗑️ Lesson Deleted');
+      showToast('🗑️ Deleted');
     }
   }
 
