@@ -1,49 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPHLA LK Admin</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPHLA LK Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#fff;padding:15px}
-.login-container{display:flex;align-items:center;justify-content:center;min-height:100vh}
-.glass{background:rgba(255,255,255,0.15);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.2);border-radius:16px}
-.login-box{width:100%;max-width:400px;padding:35px;text-align:center}
-.input{width:100%;padding:14px;margin:10px 0;border:none;border-radius:10px;background:rgba(255,255,255,0.2);color:#fff}
-.btn{width:100%;padding:14px;background:linear-gradient(90deg,#6366F1,#8B5CF6);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600}
-#dashboardScreen{display:none}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.logout{padding:10px 18px;background:#EF4444;color:white;border:none;border-radius:10px;cursor:pointer;width:auto}
-.section{padding:20px;margin-bottom:20px}.table-wrapper{overflow-x:auto;width:100%}
-table{width:100%;min-width:500px;border-collapse:collapse}th,td{padding:14px 10px;white-space:nowrap}
-.btn-sm{padding:8px 12px;font-size:13px;margin:2px;width:auto}.btn-delete{background:#EF4444}
-.toast{position:fixed;top:20px;right:20px;background:#4ADE80;color:#000;padding:14px 20px;border-radius:10px;font-weight:600;display:none;z-index:999}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+  body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#fff}
+ .container{max-width:1200px;margin:0 auto;padding:20px}
+  
+  /* LOGIN */
+ .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh}
+ .glass{background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+ .glass h1{text-align:center;font-size:28px;margin-bottom:8px}
+ .glass p{text-align:center;opacity:0.8;margin-bottom:25px;font-size:14px}
+ .input{width:100%;padding:15px;margin:10px 0;border:none;border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;font-size:15px;outline:none}
+ .input::placeholder{color:rgba(255,255,255,0.7)}
+ .btn{width:100%;padding:15px;background:linear-gradient(90deg,#6366F1,#8B5CF6);color:white;border:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:16px;transition:0.3s}
+ .btn:hover{transform:translateY(-2px)}
+  
+  /* DASHBOARD */
+  #dashboard{display:none}
+ .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px}
+ .header h1{font-size:32px;display:flex;align-items:center;gap:10px}
+ .logout{background:#EF4444;padding:12px 20px;border:none;border-radius:10px;color:#fff;font-weight:600;cursor:pointer}
+  
+ .card{background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:25px;margin-bottom:20px}
+ .card h2{font-size:20px;margin-bottom:15px}
+ .grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px}
+  
+ .table-wrap{overflow-x:auto}
+  table{width:100%;min-width:600px;border-collapse:collapse}
+  th,td{padding:15px;text-align:left;white-space:nowrap}
+  th{opacity:0.9;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.2)}
+  tr:hover{background:rgba(255,255,255,0.05)}
+ .btn-sm{padding:8px 14px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px}
+ .btn-del{background:#EF4444;color:#fff}
+  
+ .toast{position:fixed;top:20px;right:20px;background:#4ADE80;color:#000;padding:15px 20px;border-radius:12px;font-weight:600;display:none;z-index:999}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
 
-<div id="loginScreen" class="login-container">
-  <div class="login-box glass">
-    <h1>🔐 SIPHLA LK Admin</h1>
+<!-- LOGIN -->
+<div id="login" class="login-wrap">
+  <div class="glass">
+    <h1>🔐 SIPHLA LK</h1>
+    <p>Admin Panel Login</p>
     <input type="email" id="email" class="input" placeholder="Admin Email">
     <input type="password" id="password" class="input" placeholder="Password">
     <button onclick="login()" class="btn">Login</button>
-    <p id="errorMsg" style="color:#FECACA;margin-top:10px;"></p>
+    <p id="err" style="color:#FECACA;text-align:center;margin-top:10px"></p>
   </div>
 </div>
 
-<div id="dashboardScreen">
-  <div class="header"><h1>📊 Dashboard</h1><button onclick="logout()" class="logout">Logout</button></div>
-  <div class="section glass">
-    <h2>➕ Add New Lesson</h2>
-    <input type="text" id="grade" class="input" placeholder="Grade e.g: 10">
-    <input type="text" id="subject" class="input" placeholder="Subject e.g: Buddhism">
-    <input type="text" id="title" class="input" placeholder="Lesson Title">
-    <button onclick="addLesson()" class="btn" style="width:auto;">Save Lesson</button>
+<!-- DASHBOARD -->
+<div id="dashboard" class="container">
+  <div class="header">
+    <h1>📊 Dashboard</h1>
+    <button onclick="logout()" class="logout">Logout</button>
   </div>
-  <div class="section glass">
-    <h2>📝 All Lessons - Live Sync</h2>
-    <div class="table-wrapper"><table><thead><tr><th>Grade</th><th>Subject</th><th>Title</th><th>Action</th></tr></thead><tbody id="lessonBody"></tbody></table></div>
+  
+  <div class="card">
+    <h2>➕ Add New Lesson</h2>
+    <div class="grid">
+      <input type="text" id="grade" class="input" placeholder="Grade: 10, 11, A/L">
+      <input type="text" id="subject" class="input" placeholder="Subject">
+      <input type="text" id="title" class="input" placeholder="Lesson Title">
+      <button onclick="addLesson()" class="btn" style="width:120px">Save</button>
+    </div>
+  </div>
+  
+  <div class="card">
+    <h2>📝 All Lessons <span id="count" style="font-size:14px;opacity:0.8"></span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Grade</th><th>Subject</th><th>Title</th><th>Action</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -58,8 +95,7 @@ table{width:100%;min-width:500px;border-collapse:collapse}th,td{padding:14px 10p
     projectId: "siphala-lk",
     storageBucket: "siphala-lk.appspot.com",
     messagingSenderId: "1005401585483",
-    appId: "1:1005401585483:web:42a43872bd2b10213849a4",
-    measurementId: "G-BDGTVK2GOP"
+    appId: "1:1005401585483:web:42a43872bd2b10213849a4"
   };
 
   const ADMIN_EMAIL = "siphalakofficial@gmail.com";
@@ -70,38 +106,39 @@ table{width:100%;min-width:500px;border-collapse:collapse}th,td{padding:14px 10p
   const lessonsRef = ref(db, 'lessons');
 
   window.onload = () => {
-    if(localStorage.getItem('adminLogin') === 'true') showDashboard();
-    loadLessons();
+    if(localStorage.getItem('admin') === 'true') showDash();
+    loadData();
   }
 
-  function loadLessons() {
-    onValue(lessonsRef, (snapshot) => {
-      const data = snapshot.val();
-      const lessonBody = document.getElementById('lessonBody');
-      lessonBody.innerHTML = '';
-      if(data) {
-        Object.keys(data).forEach(key => {
-          const l = data[key];
-          lessonBody.innerHTML += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button class="btn btn-sm btn-delete" onclick="deleteLesson('${key}')">Delete</button></td></tr>`;
-        });
+  function loadData() {
+    onValue(lessonsRef, (snap) => {
+      const data = snap.val(); let html = ''; let count = 0;
+      if(data){
+        Object.keys(data).forEach(key=>{
+          const l = data[key]; count++;
+          html += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button class="btn-sm btn-del" onclick="del('${key}')">Delete</button></td></tr>`
+        })
       }
+      tbody.innerHTML = html;
+      count.innerText = `Total: ${count}`;
     });
   }
 
   window.login = () => {
-    if(email.value === ADMIN_EMAIL && password.value === ADMIN_PASSWORD) {
-      localStorage.setItem('adminLogin', 'true'); showDashboard();
-    } else { errorMsg.innerText = "❌ Wrong Email or Password"; }
+    if(email.value === ADMIN_EMAIL && password.value === ADMIN_PASSWORD){
+      localStorage.setItem('admin','true'); showDash();
+    } else { err.innerText = "❌ Wrong Email or Password" }
   }
-  window.logout = () => { localStorage.removeItem('adminLogin'); location.reload(); }
-  function showDashboard() { loginScreen.style.display='none'; dashboardScreen.style.display='block'; }
+  window.logout = () => { localStorage.removeItem('admin'); location.reload(); }
+  function showDash(){ login.style.display='none'; dashboard.style.display='block'; }
+  
   window.addLesson = () => {
-    if(!grade.value ||!subject.value ||!title.value){alert('Fill all fields');return}
-    push(lessonsRef,{grade:grade.value,subject:subject.value,title:title.value});
-    grade.value='';subject.value='';title.value=''; showToast('✅ Saved to Cloud!')
+    if(!grade.value ||!subject.value ||!title.value){ alert('Fill all fields'); return; }
+    push(lessonsRef, {grade:grade.value, subject:subject.value, title:title.value, time:Date.now()});
+    grade.value='';subject.value='';title.value=''; toast('✅ Saved to Cloud!')
   }
-  window.deleteLesson = (key) => { if(confirm('Delete?')){ remove(ref(db,'lessons/'+key)); showToast('🗑️ Deleted') }}
-  function showToast(msg){ toast.innerText=msg; toast.style.display='block'; setTimeout(()=>toast.style.display='none',2000) }
+  window.del = (key) => { if(confirm('Delete this lesson?')){ remove(ref(db,'lessons/'+key)); toast('🗑️ Deleted') }}
+  function toast(msg){ const t=document.getElementById('toast'); t.innerText=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2000) }
 </script>
 </body>
 </html>
