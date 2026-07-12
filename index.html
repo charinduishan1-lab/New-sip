@@ -3,39 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPHLA LK Dashboard</title>
+<title>SIPHLA LK Admin</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
   body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; color:#fff; padding:15px; }
 
- .glass { background: rgba(255,255,255,0.12); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; }
+  /* LOGIN */
+ .login-container { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+ .glass { background: rgba(255,255,255,0.15); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; }
+ .login-box { width:100%; max-width: 400px; padding: 35px; text-align:center; }
+ .login-box h1 { font-size:26px; margin-bottom:8px; }
+ .login-box p { opacity:0.9; margin-bottom:25px; font-size:14px; }
+ .input { width:100%; padding:14px; margin:10px 0; border:none; border-radius:10px; background: rgba(255,255,255,0.2); color:#fff; font-size:15px; }
+ .input::placeholder{color:rgba(255,255,255,0.8)}
+ .btn { width:100%; padding:14px; background: linear-gradient(90deg, #6366F1, #8B5CF6); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:16px; margin-top:5px; }
 
+  /* DASHBOARD */
+  #dashboardScreen { display: none; }
  .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding:0 5px; }
  .header h1 { display:flex; align-items:center; gap:10px; font-size:26px; }
- .logout { padding:10px 18px; background:#EF4444; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; }
-
+ .logout { padding:10px 18px; background:#EF4444; color:white; border:none; border-radius:10px; font-weight:600; cursor:pointer; width:auto; }
  .tabs { display:flex; gap:10px; margin-bottom:20px; }
  .tab { padding:12px 20px; border-radius:12px; cursor:pointer; background: rgba(255,255,255,0.15); font-weight:500; }
  .tab.active { background: linear-gradient(90deg, #6366F1, #8B5CF6); }
-
  .section { padding: 20px; margin-bottom: 20px; }
- .section h2 { margin-bottom:15px; display:flex; align-items:center; gap:8px; font-size:18px; }
+ .section h2 { margin-bottom:15px; font-size:18px; }
 
- .input { width:100%; padding:14px; margin:10px 0; border:none; border-radius:10px; background: rgba(255,255,255,0.15); color:#fff; font-size:15px; }
- .input::placeholder{color:rgba(255,255,255,0.7)}
-
- .btn { padding:12px 20px; background: linear-gradient(90deg, #6366F1, #8B5CF6); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; }
- .btn-sm { padding:8px 12px; font-size:13px; margin:2px; border-radius:8px; }
- .btn-edit { background:#F59E0B; }
- .btn-delete { background:#EF4444; }
-
-  /* TABLE FIX - IMPORTANT */
+  /* TABLE FIX */
  .table-wrapper { overflow-x: auto; width:100%; }
   table { width:100%; min-width: 500px; border-collapse: collapse; }
   th, td { padding:14px 10px; text-align:left; white-space: nowrap; }
   th { opacity:0.9; font-weight:600; }
-  tr:hover { background: rgba(255,255,255,0.08); }
-
+ .btn-sm { padding:8px 12px; font-size:13px; margin:2px; border-radius:8px; width:auto; }
+ .btn-edit { background:#F59E0B; }
+ .btn-delete { background:#EF4444; }
  .toast { position:fixed; top:20px; right:20px; background:#4ADE80; color:#000; padding:14px 20px; border-radius:10px; font-weight:600; display:none; z-index:999; }
 </style>
 </head>
@@ -43,57 +44,96 @@
 
 <div class="toast" id="toast">✅ Saved!</div>
 
-<div class="header">
-  <h1>📊 Dashboard</h1>
-  <button onclick="logout()" class="logout">Logout</button>
-</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="showTab('dashboard', this)">Dashboard</div>
-  <div class="tab" onclick="showTab('lessons', this)">Lessons</div>
-</div>
-
-<!-- DASHBOARD TAB -->
-<div id="dashboard" class="tabContent">
-  <div class="section glass">
-    <h2>📈 Quick Stats</h2>
-    <p>Total Lessons: <b id="totalLessons">0</b></p>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" class="login-container">
+  <div class="login-box glass">
+    <h1>🔐 SIPHLA LK Admin</h1>
+    <p>Login to Continue</p>
+    <input type="email" id="email" class="input" placeholder="Admin Email">
+    <input type="password" id="password" class="input" placeholder="Password">
+    <button onclick="login()" class="btn">Login</button>
+    <p id="errorMsg" style="color:#FECACA; margin-top:10px; font-size:14px;"></p>
+    <p style="text-align:center; margin-top:15px; font-size:12px; opacity:0.7;">Default: siphalakofficial@gmail.com / Siphala@2026</p>
   </div>
 </div>
 
-<!-- LESSONS TAB -->
-<div id="lessons" class="tabContent" style="display:none;">
-  <div class="section glass">
-    <h2>➕ Add New Lesson</h2>
-    <input type="text" id="grade" class="input" placeholder="Grade e.g: 10, 11, A/L">
-    <input type="text" id="subject" class="input" placeholder="Subject">
-    <input type="text" id="title" class="input" placeholder="Lesson Title">
-    <button onclick="addLesson()" class="btn">Save Lesson</button>
+<!-- DASHBOARD SCREEN -->
+<div id="dashboardScreen">
+  <div class="header">
+    <h1>📊 Dashboard</h1>
+    <button onclick="logout()" class="logout">Logout</button>
   </div>
 
-  <div class="section glass">
-    <h2>📝 All Lessons</h2>
-    <div class="table-wrapper"> <!-- 👈 Meka nisa scroll wenawa -->
-      <table>
-        <thead>
-          <tr>
-            <th>Grade</th>
-            <th>Subject</th>
-            <th>Title</th>
-            <th>Action</th> <!-- 👈 meka dan penawa -->
-          </tr>
-        </thead>
-        <tbody id="lessonBody"></tbody>
-      </table>
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('dashboard', this)">Dashboard</div>
+    <div class="tab" onclick="showTab('lessons', this)">Lessons</div>
+  </div>
+
+  <div id="dashboard" class="tabContent">
+    <div class="section glass">
+      <h2>📈 Quick Stats</h2>
+      <p>Total Lessons: <b id="totalLessons">0</b></p>
     </div>
-    <p style="font-size:12px; opacity:0.7; margin-top:10px;">Tip: Table eka dakata swipe karanna 👉</p>
+  </div>
+
+  <div id="lessons" class="tabContent" style="display:none;">
+    <div class="section glass">
+      <h2>➕ Add New Lesson</h2>
+      <input type="text" id="grade" class="input" placeholder="Grade e.g: 10, 11, A/L">
+      <input type="text" id="subject" class="input" placeholder="Subject">
+      <input type="text" id="title" class="input" placeholder="Lesson Title">
+      <button onclick="addLesson()" class="btn" style="width:auto;">Save Lesson</button>
+    </div>
+
+    <div class="section glass">
+      <h2>📝 All Lessons</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Grade</th><th>Subject</th><th>Title</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="lessonBody"></tbody>
+        </table>
+      </div>
+      <p style="font-size:12px; opacity:0.7; margin-top:10px;">Tip: Table eka dakata swipe karanna 👉</p>
+    </div>
   </div>
 </div>
 
 <script>
+  const ADMIN_EMAIL = "siphalakofficial@gmail.com";
+  const ADMIN_PASSWORD = "Siphala@2026";
   let lessons = JSON.parse(localStorage.getItem('siphala_lessons')) || [];
 
-  window.onload = loadLessons;
+  // Page load unama login check
+  window.onload = function() {
+    if(localStorage.getItem('adminLogin') === 'true') showDashboard();
+  }
+
+  function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem('adminLogin', 'true');
+      document.getElementById('errorMsg').innerText = "";
+      showDashboard();
+    } else {
+      document.getElementById('errorMsg').innerText = "❌ Wrong Email or Password";
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('adminLogin');
+    location.reload();
+  }
+
+  function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardScreen').style.display = 'block';
+    loadLessons();
+  }
 
   function showTab(tab, el) {
     document.querySelectorAll('.tabContent').forEach(e=>e.style.display='none');
@@ -111,7 +151,9 @@
 
   function addLesson() {
     const lesson = {
-      grade:grade.value, subject:subject.value, title:title.value
+      grade:document.getElementById('grade').value,
+      subject:document.getElementById('subject').value,
+      title:document.getElementById('title').value
     };
     if(!lesson.grade ||!lesson.subject ||!lesson.title) { alert('Please fill all fields'); return; }
     lessons.push(lesson);
@@ -125,7 +167,6 @@
     const lessonBody = document.getElementById('lessonBody');
     lessonBody.innerHTML = '';
     document.getElementById('totalLessons').innerText = lessons.length;
-
     lessons.forEach((l,i)=>{
       lessonBody.innerHTML += `
         <tr>
@@ -143,8 +184,10 @@
 
   function editLesson(i) {
     const l = lessons[i];
-    grade.value = l.grade; subject.value = l.subject; title.value = l.title;
-    lessons.splice(i,1); // Edit karala save karaddi aluthen add wenawa
+    document.getElementById('grade').value = l.grade;
+    document.getElementById('subject').value = l.subject;
+    document.getElementById('title').value = l.title;
+    lessons.splice(i,1);
     showToast('✏️ Editing...');
   }
 
@@ -156,8 +199,6 @@
       showToast('🗑️ Deleted');
     }
   }
-
-  function logout() { alert('Logout clicked'); }
 </script>
 </body>
 </html>
