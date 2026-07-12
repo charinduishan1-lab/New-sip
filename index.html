@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SIPHLA LK - LMS</title>
+<title>SIPHLA LK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px;margin:0">
+<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;margin:0;padding:0">
 
-<h1 style="text-align:center">📚 SIPHLA LK</h1>
-<p style="text-align:center;margin-bottom:30px">Select Grade → Subject → Lesson</p>
-
-<div id="app" style="max-width:900px;margin:0 auto"></div>
+<div id="app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 <script>
 var firebaseConfig = {
   apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
   databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "siphala-lk"
+  projectId: "siphala-lk",
+  storageBucket: "siphala-lk.appspot.com"
 };
 firebase.initializeApp(firebaseConfig);
+var auth = firebase.auth();
 var db = firebase.database();
-var lessonsRef = db.ref('lessons');
+var storage = firebase.storage();
 var allLessons = [];
+var currentUser = null;
 
+// YouTube ID
 function getYouTubeID(url){
   if(!url) return '';
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
@@ -31,95 +34,188 @@ function getYouTubeID(url){
   return (match&&match[7].length==11)? match[7] : '';
 }
 
-lessonsRef.on('value', function(snapshot) {
-  allLessons = [];
-  snapshot.forEach(function(child) {
-    var l = child.val();
-    l.key = child.key;
-    allLessons.push(l);
-  });
-  showGrades();
+// Login check
+auth.onAuthStateChanged(user=>{
+  currentUser = user;
+  if(user){
+    db.ref('students/' + user.uid).once('value').then(s=>{
+      showGrades();
+    })
+  } else {
+    showLogin();
+  }
 });
 
-// STEP 1: Grades
-function showGrades(){
-  var grades = [...new Set(allLessons.map(l => l.grade))].sort((a,b)=>{
-    if(a=='A/L') return 1; if(b=='A/L') return -1; return a-b;
-  });
-
-  var html = '<h2 style="text-align:center">1. Select Grade</h2>';
-  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px">';
-
-  if(grades.length == 0) html += '<p style="grid-column:span 3;text-align:center">No lessons yet</p>';
-
-  grades.forEach(g => {
-    var displayName = g == 'A/L'? 'A Level' : 'Grade ' + g;
-    html += '<div onclick="showSubjects(\'' + g + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px 10px;text-align:center;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.2)">';
-    html += '<div style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);width:70px;height:70px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white">' + g + '</div>';
-    html += '<div style="color:#333;font-weight:600;font-size:14px">' + displayName + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-  app.innerHTML = html;
+// PAGE 1: LOGIN / REGISTER
+function showLogin(){
+  app.innerHTML = `
+  <div style="display:flex;align-items:center;justify-content:center;height:100vh;padding:20px">
+  <div style="background:rgba(255,255,255,0.15);padding:30px;border-radius:15px;width:100%;max-width:400px">
+  <h2 style="text-align:center">📚 SIPHLA LK</h2>
+  <input id="email" type="email" placeholder="Email" style="width:100%;padding:12px;margin:10px 0;border:none;border-radius:8px">
+  <input id="pass" type="password" placeholder="Password" style="width:100%;padding:12px;margin:10px 0;border:none;border-radius:8px">
+  <button onclick="login()" style="width:100%;padding:12px;background:#8B5CF6;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer">Login</button>
+  <button onclick="register()" style="width:100%;padding:12px;background:transparent;color:white;border:2px solid white;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:10px">Create Account</button>
+  <p id="msg" style="text-align:center;margin-top:15px"></p>
+  </div></div>`;
 }
 
-// STEP 2: Subjects - MEKA PENNE MEHEN
+function login(){
+  auth.signInWithEmailAndPassword(email.value, pass.value)
+.catch(e=>{ msg.innerText = e.message })
+}
+
+function register(){
+  auth.createUserWithEmailAndPassword(email.value, pass.value)
+.then(user=>{
+    db.ref('students/' + user.user.uid).set({
+      email: email.value,
+      name: email.value.split('@')[0],
+      photo: 'https://via.placeholder.com/150/8B5CF6/FFFFFF?text=U'
+    });
+  })
+.catch(e=>{ msg.innerText = e.message })
+}
+
+// PAGE 2: GRADES
+function showGrades(){
+  lessonsRef = db.ref('lessons');
+  lessonsRef.on('value', function(snapshot) {
+    allLessons = [];
+    snapshot.forEach(function(child) {
+      var l = child.val();
+      l.key = child.key;
+      allLessons.push(l);
+    });
+
+    var grades = [...new Set(allLessons.map(l => l.grade))].sort((a,b)=>{
+      if(a=='A/L') return 1; if(b=='A/L') return -1; return a-b;
+    });
+
+    var html = topBar();
+    html += '<h2 style="text-align:center;padding:20px 0">1. Select Grade</h2>';
+    html += '<div style="padding:0 20px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:15px">';
+    grades.forEach(g => {
+      var displayName = g == 'A/L'? 'A Level' : 'Grade ' + g;
+      html += `<div onclick="showSubjects('${g}')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px 10px;text-align:center;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.2)">`;
+      html += `<div style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);width:70px;height:70px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white">${g}</div>`;
+      html += `<div style="color:#333;font-weight:600;font-size:14px">${displayName}</div></div>`;
+    });
+    html += '</div>';
+    app.innerHTML = html;
+  });
+}
+
+// TOP BAR with Profile
+function topBar(){
+  return `<div style="background:rgba(0,0,0,0.2);padding:15px 20px;display:flex;justify-content:space-between;align-items:center">
+  <div onclick="showProfile()" style="display:flex;align-items:center;cursor:pointer">
+    <img id="profilePic" src="https://via.placeholder.com/40/8B5CF6/FFFFFF?text=U" style="width:40px;height:40px;border-radius:50%;margin-right:10px">
+    <span id="profileName">Student</span>
+  </div>
+  <button onclick="logout()" style="background:#EF4444;color:white;padding:8px 15px;border:none;border-radius:8px;cursor:pointer">Logout</button>
+  </div>`;
+}
+
+// PAGE 3: SUBJECTS
 function showSubjects(grade){
   var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))].sort();
-  var html = '<button onclick="showGrades()" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Grades</button>';
-  html += '<h2 style="text-align:center">2. Select Subject - Grade ' + grade + '</h2>';
-  html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px">';
-
-  if(subjects.length == 0) html += '<p style="grid-column:span 2;text-align:center">No subjects</p>';
-
+  var html = topBar();
+  html += `<button onclick="showGrades()" style="margin:20px;background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer">← Back</button>`;
+  html += `<h2 style="text-align:center">2. Select Subject</h2>`;
+  html += `<div style="padding:0 20px 20px;display:grid;grid-template-columns:repeat(2,1fr);gap:15px">`;
   subjects.forEach(s => {
-    html += '<div onclick="showLessons(\'' + grade + '\',\'' + s + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:#333;font-weight:600;box-shadow:0 4px 8px rgba(0,0,0,0.2)">' + s + '</div>';
+    html += `<div onclick="showLessons('${grade}','${s}')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:#333;font-weight:600">${s}</div>`;
   });
-  html += '</div>';
+  html += `</div>`;
   app.innerHTML = html;
+  loadProfileData();
 }
 
-// STEP 3: Lessons
+// PAGE 4: LESSONS
 function showLessons(grade, subject){
   var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
-  var html = '<button onclick="showSubjects(\'' + grade + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Subjects</button>';
-  html += '<h2 style="text-align:center">3. Select Lesson</h2>';
-
-  if(lessons.length == 0) html += '<p style="text-align:center">No lessons</p>';
-
+  var html = topBar();
+  html += `<button onclick="showSubjects('${grade}')" style="margin:20px;background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer">← Back</button>`;
+  html += `<h2 style="text-align:center">3. Select Lesson</h2>`;
+  html += `<div style="padding:0 20px 20px">`;
   lessons.forEach(l => {
-    html += '<div onclick="playLesson(\'' + l.key + '\')" style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer">';
-    html += '<h3 style="margin:0">' + l.title + '</h3></div>';
+    html += `<div onclick="playLesson('${l.key}')" style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer"><h3 style="margin:0">${l.title}</h3></div>`;
   });
+  html += `</div>`;
   app.innerHTML = html;
+  loadProfileData();
 }
 
-// STEP 4: Video
+// PAGE 5: VIDEO
 function playLesson(key){
   var l = allLessons.find(x => x.key == key);
   var videoID = getYouTubeID(l.ytlink);
   var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
   var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
 
-  var html = '<button onclick="showLessons(\'' + l.grade + '\',\'' + l.subject + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Lessons</button>';
-  html += '<h2>' + l.title + '</h2>';
-  html += '<p>Grade ' + l.grade + ' - ' + l.subject + '</p>';
-
+  var html = topBar();
+  html += `<button onclick="showLessons('${l.grade}','${l.subject}')" style="margin:20px;background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer">← Back</button>`;
+  html += `<div style="padding:0 20px 20px"><h2>${l.title}</h2><p>Grade ${l.grade} - ${l.subject}</p>`;
   if(videoID){
-    html += '<div id="vid-' + key + '" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="startVideo(\'' + key + '\',\'' + embedLink + '\')">';
-    html += '<img src="' + thumbnail + '" style="width:100%;display:block">';
-    html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div>';
-    html += '</div>';
-  } else {
-    html += '<p>No video link added</p>';
+    html += `<div id="vid-${key}" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="startVideo('${key}','${embedLink}')">`;
+    html += `<img src="${thumbnail}" style="width:100%;display:block"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div></div>`;
   }
+  html += `</div>`;
   app.innerHTML = html;
+  loadProfileData();
 }
 
 function startVideo(key, embedLink){
   document.getElementById('vid-' + key).innerHTML =
-  '<iframe width="100%" height="400" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
+  `<iframe width="100%" height="400" src="${embedLink}?autoplay=1&rel=0&modestbranding=1" frameborder="0" allowfullscreen style="border-radius:12px"></iframe>`;
 }
+
+// PAGE 6: PROFILE
+function showProfile(){
+  var html = topBar();
+  html += `<div style="padding:20px;max-width:400px;margin:0 auto">
+  <h2 style="text-align:center">My Profile</h2>
+  <img id="pic" style="width:120px;height:120px;border-radius:50%;margin:20px auto;display:block">
+  <input id="name" placeholder="Name" style="width:100%;padding:12px;margin:10px 0;border:none;border-radius:8px;color:#333">
+  <input id="file" type="file" accept="image/*" style="margin:10px 0">
+  <button onclick="updateProfile()" style="width:100%;padding:12px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer">Update</button>
+  </div>`;
+  app.innerHTML = html;
+  loadProfileData();
+}
+
+function loadProfileData(){
+  if(currentUser){
+    db.ref('students/' + currentUser.uid).once('value').then(s=>{
+      var d=s.val();
+      if(d){
+        document.getElementById('profileName').innerText = d.name;
+        document.getElementById('profilePic').src = d.photo;
+        if(document.getElementById('name')) document.getElementById('name').value = d.name;
+        if(document.getElementById('pic')) document.getElementById('pic').src = d.photo;
+      }
+    })
+  }
+}
+
+function updateProfile(){
+  var file = document.getElementById('file').files[0];
+  var newName = document.getElementById('name').value;
+  if(file){
+    storage.ref('profiles/'+currentUser.uid+'.jpg').put(file).then(()=>{
+      storage.ref('profiles/'+currentUser.uid+'.jpg').getDownloadURL().then(url=>{
+        db.ref('students/'+currentUser.uid).update({name:newName, photo:url});
+        alert('Updated!'); showGrades();
+      })
+    })
+  } else {
+    db.ref('students/'+currentUser.uid).update({name:newName});
+    alert('Updated!'); showGrades();
+  }
+}
+
+function logout(){ auth.signOut(); }
 </script>
 </body>
 </html>
