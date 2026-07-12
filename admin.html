@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SIPHLA Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
+
+<h1>📊 SIPHLA Admin Panel</h1>
+
+<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px;margin-bottom:20px">
+  <h2>➕ Add New Lesson</h2>
+  <label>Grade:</label><br><input id="grade" placeholder="Ex: 10" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  <label>Subject:</label><br><input id="subject" placeholder="Ex: Science" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  <label>Title:</label><br><input id="title" placeholder="Ex: Cells" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  <label>YouTube Link:</label><br><input id="ytlink" placeholder="https://youtube.com/watch?v=" style="width:95%;padding:12px;margin:5px 0 15px 0;border:none;border-radius:8px">
+  <button id="saveBtn" style="padding:12px 20px;background:#8B5CF6;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;width:100%">Save Lesson</button>
+  <p id="status" style="text-align:center;font-weight:bold"></p>
+</div>
+
+<div style="background:rgba(255,255,255,0.2);padding:20px;border-radius:15px">
+  <h2>📝 Manage Lessons</h2>
+  <div id="list"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
+  databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "siphala-lk"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+var lessonsRef = db.ref('lessons');
+
+document.getElementById('saveBtn').onclick = function() {
+  lessonsRef.push({
+    grade:grade.value, subject:subject.value, title:title.value, ytlink:ytlink.value
+  }).then(function(){
+    status.innerText = "✅ Saved!"; status.style.color = "lightgreen";
+    grade.value='';subject.value='';title.value='';ytlink.value='';
+  });
+}
+
+lessonsRef.on('value', function(snapshot) {
+  var html = '';
+  snapshot.forEach(function(child) {
+    var l = child.val(); var key = child.key;
+    html += '<div style="background:rgba(0,0,0,0.2);padding:15px;border-radius:10px;margin-bottom:10px;display:flex;justify-content:space-between"><div><b>' + l.title + '</b><br><small>Grade ' + l.grade + ' - ' + l.subject + '</small></div><button onclick="del(\'' + key + '\')" style="padding:8px 12px;background:#EF4444;color:white;border:none;border-radius:6px">Delete</button></div>';
+  });
+  list.innerHTML = html || '<p>No lessons</p>';
+});
+function del(key){ if(confirm('Delete?')){ db.ref('lessons/' + key).remove(); } }
+</script>
+</body>
+</html>
