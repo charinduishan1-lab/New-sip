@@ -28,6 +28,7 @@ body{
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor:pointer;
   transform-style: preserve-3d;
+  animation: fadeIn 0.5s both;
 }
 .card-3d:hover{
   transform: translateY(-15px) rotateX(5deg);
@@ -35,12 +36,17 @@ body{
   border-color: rgba(102, 126, 234, 0.5);
 }
 
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
 .btn{
   padding:14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border:none; color:white; border-radius:15px; cursor:pointer; font-weight:600;
   transition:0.3s; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
-.btn:hover{ transform: scale(1.05); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+.btn:hover{ transform: scale(1.05); }
 
 .loading{
   position:fixed; top:0; left:0; width:100%; height:100%; background:#0f0f1a;
@@ -64,7 +70,7 @@ h1{ background: linear-gradient(90deg, #667eea, #f093fb); -webkit-background-cli
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-// PARTICLES BACKGROUND
+// PARTICLES
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -118,7 +124,7 @@ function showGrades(){
     </div>`;
     html += '<div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:25px;max-width:1100px;margin:auto">';
     grades.forEach((g,i) => {
-      html += `<div onclick="showSubjects('${g}')" class="glass card-3d" style="padding:50px 20px;text-align:center;font-size:28px;font-weight:700;animation:fadeIn 0.5s ${i*0.1}s both">@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}}${g}</div>`;
+      html += `<div onclick="showSubjects('${g}')" class="glass card-3d" style="padding:50px 20px;text-align:center;font-size:28px;font-weight:700;animation-delay:${i*0.1}s">${g}</div>`;
     });
     html += '</div>';
     app.innerHTML = html;
@@ -131,7 +137,7 @@ function showSubjects(grade){
   html += `<h1 style="text-align:center;font-size:36px">${grade}</h1><p style="text-align:center;opacity:0.7">Select Subject</p>`;
   html += '<div style="padding:30px;max-width:900px;margin:auto">';
   subjects.forEach((s,i) => {
-    html += `<div onclick="showLessons('${grade}','${s}')" class="glass card-3d" style="padding:30px;margin:20px 0;font-size:20px;font-weight:600;animation:fadeIn 0.5s ${i*0.1}s both">${s}</div>`;
+    html += `<div onclick="showLessons('${grade}','${s}')" class="glass card-3d" style="padding:30px;margin:20px 0;font-size:20px;font-weight:600;animation-delay:${i*0.1}s">${s}</div>`;
   });
   html += '</div>';
   app.innerHTML = html;
@@ -145,7 +151,7 @@ function showLessons(grade, subject){
   lessons.forEach((l,i) => {
     var videoID = getYouTubeID(l.ytlink);
     var thumb = videoID? `https://img.youtube.com/vi/${videoID}/maxresdefault.jpg` : '';
-    html += `<div onclick="playLesson('${l.key}')" class="glass card-3d" style="padding:0;overflow:hidden;animation:fadeIn 0.5s ${i*0.1}s both">
+    html += `<div onclick="playLesson('${l.key}')" class="glass card-3d" style="padding:0;overflow:hidden;animation-delay:${i*0.1}s">
       <img src="${thumb}" style="width:100%;height:200px;object-fit:cover">
       <div style="padding:25px">
         <h3 style="font-size:18px;margin-bottom:10px">${l.title}</h3>
