@@ -1,10 +1,1 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyA_3J2P4S6A0BCQrnqMEruS10QNwFBX8w",
-  authDomain: "siphala-lk.firebaseapp.com",
-  databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "siphala-lk",
-  storageBucket: "siphala-lk.appspot.com",
-  messagingSenderId: "1005401585483",
-  appId: "1:1005401585483:web:42a43872bd2b10213849a4",
-  measurementId: "G-BDGTVK2GOP"
-};
+[]
