@@ -6,123 +6,34 @@
 <title>SIPHLA LK Admin</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+  body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
   
-  body { 
-    background: linear-gradient(-45deg, #667eea, #764ba2, #6366F1, #8B5CF6); 
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    min-height:100vh; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center;
-    padding:20px;
-  }
-  @keyframes gradientBG {
-    0% {background-position: 0% 50%;}
-    50% {background-position: 100% 50%;}
-    100% {background-position: 0% 50%;}
-  }
-
-  .glass { 
-    background: rgba(255,255,255,0.12); 
-    backdrop-filter: blur(25px); 
-    border: 1px solid rgba(255,255,255,0.2); 
-    border-radius: 24px; 
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    animation: float 4s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%,100%{transform:translateY(0px)}
-    50%{transform:translateY(-8px)}
-  }
-
-  .login-box { 
-    width:100%; 
-    max-width: 420px; 
-    padding: 40px 30px; 
-  }
-
-  .logo {
-    text-align:center;
-    margin-bottom: 10px;
-    font-size: 28px;
-    font-weight: 700;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-  }
-
-  .subtitle {
-    text-align:center; 
-    opacity:0.9; 
-    margin-bottom:30px; 
-    font-size:14px;
-  }
-
-  .input-group { position:relative; margin-bottom:18px; }
-  .input { 
-    width:100%; 
-    padding:16px 16px 16px 45px; 
-    border:none; 
-    border-radius:14px; 
-    background: rgba(255,255,255,0.15); 
-    color:#fff; 
-    font-size:15px;
-    transition:0.3s;
-  }
-  .input:focus {
-    outline:none;
-    background: rgba(255,255,255,0.25);
-    box-shadow: 0 0 0 3px rgba(139,92,246,0.4);
-  }
-  .input::placeholder{color:rgba(255,255,255,0.7)}
-  .icon {
-    position:absolute;
-    left:15px;
-    top:50%;
-    transform:translateY(-50%);
-    opacity:0.7;
-    font-size:18px;
-  }
-
-  .btn { 
-    width:100%; 
-    padding:16px; 
-    background: linear-gradient(90deg, #6366F1, #8B5CF6); 
-    color:white; 
-    border:none; 
-    border-radius:14px; 
-    cursor:pointer; 
-    font-weight:700; 
-    font-size:16px; 
-    transition:0.3s;
-    box-shadow: 0 4px 15px rgba(99,102,241,0.4);
-  }
-  .btn:hover { 
-    transform: translateY(-3px); 
-    box-shadow: 0 8px 25px rgba(99,102,241,0.6);
-  }
-  .btn:active { transform: translateY(0); }
-
-  .default-text {
-    text-align:center; 
-    margin-top:20px; 
-    font-size:12px; 
-    opacity:0.7;
-  }
-
+  .glass { background: rgba(255,255,255,0.15); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; }
+  
+  .login-box { width:100%; max-width: 400px; padding: 35px; text-align:center; }
+  .login-box h1 { font-size:26px; margin-bottom:8px; }
+  .login-box p { opacity:0.9; margin-bottom:25px; font-size:14px; }
+  
+  .input { width:100%; padding:14px; margin:10px 0; border:none; border-radius:10px; background: rgba(255,255,255,0.2); color:#fff; font-size:15px; }
+  .input::placeholder{color:rgba(255,255,255,0.8)}
+  .input:focus { outline:2px solid #8B5CF6; background: rgba(255,255,255,0.25); }
+  
+  .btn { width:100%; padding:14px; background: linear-gradient(90deg, #6366F1, #8B5CF6); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; font-size:16px; margin-top:5px; }
+  .btn:hover { opacity:0.9; }
+  
+  .default-text { text-align:center; margin-top:15px; font-size:12px; opacity:0.7; }
+  
   /* Dashboard */
   #dashboardScreen { display: none; width:100%; }
-  .container { max-width: 1200px; margin: 0 auto; padding: 25px; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 25px; color:#fff; }
   .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; }
   .stats { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
   .card { padding: 22px; text-align:center; }
-  .card h2 { font-size: 36px; font-weight: 700; background: linear-gradient(90deg, #fff, #C4B5FD); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .card h2 { font-size: 36px; font-weight: 700; }
   .section { padding: 25px; margin-bottom: 20px; }
-  .tabs { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
-  .tab { padding:10px 18px; border-radius:10px; cursor:pointer; background: rgba(255,255,255,0.15); transition:0.3s; }
-  .tab.active { background: linear-gradient(90deg, #6366F1, #8B5CF6); }
+  .tabs { display:flex; gap:10px; margin-bottom:20px; }
+  .tab { padding:10px 18px; border-radius:10px; cursor:pointer; background: rgba(255,255,255,0.15); }
+  .tab.active { background: #6366F1; }
   table { width:100%; border-collapse: collapse; }
   th, td { padding:12px; text-align:left; border-bottom: 1px solid rgba(255,255,255,0.1); }
 </style>
@@ -132,22 +43,12 @@
 <!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box glass">
-    <div class="logo">🔐 SIPHLA LK Admin</div>
-    <div class="subtitle">Login to Continue</div>
-    
-    <div class="input-group">
-      <span class="icon">📧</span>
-      <input type="email" id="email" class="input" placeholder="Admin Email">
-    </div>
-    
-    <div class="input-group">
-      <span class="icon">🔒</span>
-      <input type="password" id="password" class="input" placeholder="Password">
-    </div>
-    
-    <button onclick="login()" class="btn">Login →</button>
-    
-    <p id="errorMsg" style="color:#FECACA; text-align:center; margin-top:12px; font-size:14px;"></p>
+    <h1>🔐 SIPHLA LK Admin</h1>
+    <p>Login to Continue</p>
+    <input type="email" id="email" class="input" placeholder="Admin Email">
+    <input type="password" id="password" class="input" placeholder="Password">
+    <button onclick="login()" class="btn">Login</button>
+    <p id="errorMsg" style="color:#FECACA; margin-top:10px; font-size:14px;"></p>
     <p class="default-text">Default: siphalakofficial@gmail.com / Siphala@2026</p>
   </div>
 </div>
@@ -157,7 +58,7 @@
   <div class="container">
     <div class="header">
       <h1>📊 Dashboard</h1>
-      <button onclick="logout()" class="btn" style="width:auto; padding:12px 20px; background: linear-gradient(90deg, #EF4444, #F87171);">Logout</button>
+      <button onclick="logout()" class="btn" style="width:auto; padding:10px 20px; background:#EF4444;">Logout</button>
     </div>
 
     <div class="tabs">
@@ -169,19 +70,16 @@
       <div class="stats">
         <div class="card glass"><h2 id="totalLessons">0</h2><p>Total Lessons</p></div>
         <div class="card glass"><h2>50,000+</h2><p>Students</p></div>
-        <div class="card glass"><h2>+24%</h2><p>Growth</p></div>
       </div>
     </div>
 
     <div id="lessons" class="tabContent" style="display:none;">
       <div class="section glass">
         <h2 style="margin-bottom:15px;">➕ Add New Lesson</h2>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
-          <select id="grade" class="input" style="padding-left:16px;"><option value="">Grade</option><option>10</option><option>11</option><option>A/L</option></select>
-          <input type="text" id="subject" class="input" style="padding-left:16px;" placeholder="Subject">
-          <input type="text" id="title" class="input" style="padding-left:16px;" placeholder="Lesson Title">
-        </div>
-        <button onclick="addLesson()" class="btn" style="margin-top:15px; width:auto;">Save Lesson</button>
+        <input type="text" id="grade" class="input" placeholder="Grade">
+        <input type="text" id="subject" class="input" placeholder="Subject">
+        <input type="text" id="title" class="input" placeholder="Lesson Title">
+        <button onclick="addLesson()" class="btn" style="width:auto;">Save Lesson</button>
         <p id="status" style="margin-top:10px;"></p>
       </div>
       <div class="section glass">
@@ -194,31 +92,23 @@
 
 <script>
   let ADMIN_EMAIL = "siphalakofficial@gmail.com";
-  let ADMIN_PASSWORD = localStorage.getItem('adminPass') || "Siphala@2026";
+  let ADMIN_PASSWORD = "Siphala@2026";
   let lessons = JSON.parse(localStorage.getItem('siphala_lessons')) || [];
 
-  window.onload = function() {
-    if(localStorage.getItem('adminLogin') === 'true') showDashboard();
-  }
+  if(localStorage.getItem('adminLogin') === 'true') showDashboard();
 
   function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
       localStorage.setItem('adminLogin', 'true');
-      document.getElementById('errorMsg').innerText = "";
       showDashboard();
     } else {
       document.getElementById('errorMsg').innerText = "❌ Wrong Email or Password";
-      document.querySelector('.login-box').style.animation = 'shake 0.5s';
-      setTimeout(()=>document.querySelector('.login-box').style.animation='',500);
     }
   }
 
-  function logout() { 
-    localStorage.removeItem('adminLogin'); 
-    location.reload(); 
-  }
+  function logout() { localStorage.removeItem('adminLogin'); location.reload(); }
 
   function showDashboard() { 
     document.getElementById('loginScreen').style.display = 'none';
@@ -234,16 +124,13 @@
   }
 
   function addLesson() {
-    const grade = document.getElementById('grade').value;
-    const subject = document.getElementById('subject').value;
-    const title = document.getElementById('title').value;
-    if(!grade || !subject || !title) { alert('Please fill all fields'); return; }
-    
-    lessons.push({grade, subject, title});
+    lessons.push({
+      grade:document.getElementById('grade').value,
+      subject:document.getElementById('subject').value,
+      title:document.getElementById('title').value
+    });
     localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
-    document.getElementById('status').innerText = "✅ Lesson Saved!";
-    document.getElementById('status').style.color = "#4ADE80";
-    document.querySelectorAll('#lessons .input').forEach(i=>i.value='');
+    document.getElementById('status').innerText = "✅ Saved!";
     loadLessons();
   }
 
@@ -252,16 +139,8 @@
     lessonBody.innerHTML = ''; 
     document.getElementById('totalLessons').innerText = lessons.length;
     lessons.forEach((l,i)=>{
-      lessonBody.innerHTML += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button onclick="deleteLesson(${i})" class="btn" style="padding:6px 12px; width:auto; font-size:12px; background:red;">Delete</button></td></tr>`;
+      lessonBody.innerHTML += `<tr><td>${l.grade}</td><td>${l.subject}</td><td>${l.title}</td><td><button onclick="lessons.splice(${i},1); loadLessons()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px;">Delete</button></td></tr>`;
     });
-  }
-  
-  function deleteLesson(i) {
-    if(confirm('Delete this lesson?')) {
-      lessons.splice(i,1); 
-      localStorage.setItem('siphala_lessons', JSON.stringify(lessons));
-      loadLessons();
-    }
   }
 </script>
 </body>
