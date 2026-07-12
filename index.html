@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SIPHLA LK - LMS</title>
+<title>SIPHLA LK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px;margin:0">
+<body style="background:#F5F5F5;color:#333;font-family:Arial;margin:0;padding:0">
 
-<h1 style="text-align:center">📚 SIPHLA LK</h1>
-<p style="text-align:center;margin-bottom:30px">Select Grade → Subject → Lesson</p>
-
-<div id="app" style="max-width:900px;margin:0 auto"></div>
+<div id="app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -41,50 +38,69 @@ lessonsRef.on('value', function(snapshot) {
   showGrades();
 });
 
-// STEP 1: Grades - Card Grid
+// HEADER FUNCTION
+function header(title, backFunc){
+  return '<div style="background:linear-gradient(135deg,#8B5CF6,#A855F7);padding:20px;display:flex;align-items:center;box-shadow:0 4px 10px rgba(0,0,0,0.2)"><div onclick="'+backFunc+'" style="width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:15px"><span style="font-size:24px;color:white">‹</span></div><h1 style="color:white;margin:0;font-size:22px;flex:1;text-align:center">'+title+'</h1><div style="width:40px"></div></div>';
+}
+
+// STEP 1: Grades
 function showGrades(){
   var grades = [...new Set(allLessons.map(l => l.grade))].sort((a,b)=>{
     if(a=='A/L') return 1; if(b=='A/L') return -1; return a-b;
   });
 
-  var html = '<h2 style="text-align:center">1. Select Grade</h2>';
-  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px">'; // 3 columns
-
-  if(grades.length == 0) html += '<p style="grid-column:span 3;text-align:center">No lessons yet</p>';
-
+  var html = header('Select Grade', '');
+  html += '<div style="padding:20px;display:grid;grid-template-columns:repeat(3,1fr);gap:15px">';
   grades.forEach(g => {
     var displayName = g == 'A/L'? 'A Level' : 'Grade ' + g;
-    html += '<div onclick="showSubjects(\'' + g + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px 10px;text-align:center;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.2)">';
-    html += '<div style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);width:70px;height:70px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white">' + g + '</div>';
-    html += '<div style="color:#333;font-weight:600;font-size:14px">' + displayName + '</div>';
+    html += '<div onclick="showSubjects(\'' + g + '\')" style="background:white;border-radius:12px;padding:20px 10px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1)">';
+    html += '<div style="background:linear-gradient(135deg,#8B5CF6,#A855F7);width:70px;height:70px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white">' + g + '</div>';
+    html += '<div style="font-weight:600;font-size:14px">' + displayName + '</div>';
     html += '</div>';
   });
   html += '</div>';
   app.innerHTML = html;
 }
 
-// STEP 2: Subjects
+// STEP 2: Subjects - Pink Purple Card
 function showSubjects(grade){
   var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))].sort();
-  var html = '<button onclick="showGrades()" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Grades</button>';
-  html += '<h2 style="text-align:center">2. Select Subject</h2>';
-  html += '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px">';
+  var html = header('Grade ' + grade, 'showGrades()');
+  html += '<div style="padding:20px">';
   subjects.forEach(s => {
-    html += '<div onclick="showLessons(\'' + grade + '\',\'' + s + '\')" style="background:rgba(255,255,255,0.95);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:#333;font-weight:600;box-shadow:0 4px 8px rgba(0,0,0,0.2)">' + s + '</div>';
+    // Sinhala name eka check karanna. Admin eke "Sinhala,English" wage damma nam split wenawa
+    var sinName = s;
+    var enName = '';
+    if(s.includes(',')){
+      var parts = s.split(',');
+      sinName = parts[0];
+      enName = parts[1];
+    }
+    html += '<div onclick="showLessons(\'' + grade + '\',\'' + s + '\')" style="background:white;border-radius:15px;padding:15px;margin-bottom:15px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1)">';
+    html += '<div style="background:linear-gradient(135deg,#EC4899,#A855F7);padding:20px;border-radius:12px;text-align:center;color:white">';
+    html += '<div style="font-size:22px;font-weight:bold;margin-bottom:5px">'+sinName+'</div>';
+    if(enName) html += '<div style="font-size:16px">'+enName+'</div>';
+    html += '</div></div>';
   });
   html += '</div>';
   app.innerHTML = html;
 }
 
-// STEP 3: Lessons
+// STEP 3: Lessons - Thumbnail Cards
 function showLessons(grade, subject){
   var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
-  var html = '<button onclick="showSubjects(\'' + grade + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Subjects</button>';
-  html += '<h2 style="text-align:center">3. Select Lesson</h2>';
-  lessons.forEach(l => {
-    html += '<div onclick="playLesson(\'' + l.key + '\')" style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px;cursor:pointer">';
-    html += '<h3 style="margin:0">' + l.title + '</h3></div>';
+  var html = header(subject.split(',')[0], 'showSubjects(\'' + grade + '\')');
+  html += '<div style="padding:20px">';
+  lessons.forEach((l,index) => {
+    var videoID = getYouTubeID(l.ytlink);
+    var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : 'https://via.placeholder.com/400x225/8B5CF6/FFFFFF?text=SIPHLA.LK';
+
+    html += '<div onclick="playLesson(\'' + l.key + '\')" style="background:white;border-radius:15px;padding:10px;margin-bottom:15px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1)">';
+    html += '<img src="'+thumbnail+'" style="width:100%;border-radius:10px;margin-bottom:10px">';
+    html += '<div style="font-size:16px;font-weight:600;text-align:center">'+ (index+1) +'. පාඩම | ' + l.title + '</div>';
+    html += '</div>';
   });
+  html += '</div>';
   app.innerHTML = html;
 }
 
@@ -92,27 +108,23 @@ function showLessons(grade, subject){
 function playLesson(key){
   var l = allLessons.find(x => x.key == key);
   var videoID = getYouTubeID(l.ytlink);
-  var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
   var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
 
-  var html = '<button onclick="showLessons(\'' + l.grade + '\',\'' + l.subject + '\')" style="background:#6B7280;color:white;padding:10px 15px;border:none;border-radius:8px;cursor:pointer;margin-bottom:15px">← Back to Lessons</button>';
-  html += '<h2>' + l.title + '</h2>';
-  html += '<p>Grade ' + l.grade + ' - ' + l.subject + '</p>';
-
+  var html = header(l.title, 'showLessons(\'' + l.grade + '\',\'' + l.subject + '\')');
+  html += '<div style="padding:20px">';
   if(videoID){
     html += '<div id="vid-' + key + '" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="startVideo(\'' + key + '\',\'' + embedLink + '\')">';
-    html += '<img src="' + thumbnail + '" style="width:100%;display:block">';
+    html += '<img src="https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg" style="width:100%;display:block">';
     html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div>';
     html += '</div>';
-  } else {
-    html += '<p>No video link added</p>';
   }
+  html += '</div>';
   app.innerHTML = html;
 }
 
 function startVideo(key, embedLink){
   document.getElementById('vid-' + key).innerHTML =
-  '<iframe width="100%" height="400" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
+  '<iframe width="100%" height="230" src="' + embedLink + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
 }
 </script>
 </body>
