@@ -4,12 +4,12 @@
 <title>SIPHLA LK - Lessons</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px;text-align:center">
+<body style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-family:Arial;padding:20px">
 
-<h1>📚 SIPHLA LK</h1>
-<p>Free Lessons for Grade 6 - A/L</p>
+<h1 style="text-align:center">📚 SIPHLA LK</h1>
+<p style="text-align:center">Free Lessons for Grade 6 - A/L</p>
 
-<div id="lessons" style="max-width:800px;margin:30px auto;text-align:left"></div>
+<div id="lessons" style="max-width:900px;margin:30px auto"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -23,26 +23,48 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.database();
 var lessonsRef = db.ref('lessons');
 
+// YouTube ID ganna function eka
+function getYouTubeID(url){
+  if(!url) return '';
+  var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  var match = url.match(regExp);
+  return (match&&match[7].length==11)? match[7] : '';
+}
+
 lessonsRef.on('value', function(snapshot) {
   var html = '';
-  if(snapshot.numChildren() == 0){ html = '<p style="text-align:center">No lessons yet. Check back later.</p>' }
-  
+  if(snapshot.numChildren() == 0){ html = '<p style="text-align:center">No lessons yet</p>' }
+
   snapshot.forEach(function(child) {
     var l = child.val();
-    var ytButton = '';
-    if(l.ytlink && l.ytlink != ''){
-      ytButton = '<a href="' + l.ytlink + '" target="_blank" style="display:inline-block;padding:10px 18px;background:#FF0000;color:white;border:none;border-radius:8px;text-decoration:none;font-weight:bold;margin-top:10px">▶️ Watch on YouTube</a>';
+    var videoID = getYouTubeID(l.ytlink);
+    var thumbnail = videoID? 'https://img.youtube.com/vi/' + videoID + '/hqdefault.jpg' : '';
+    var embedLink = videoID? 'https://www.youtube.com/embed/' + videoID : '';
+
+    html += '<div style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:20px">';
+    html += '<span style="background:#8B5CF6;padding:5px 12px;border-radius:20px;font-size:12px">Grade ' + l.grade + ' - ' + l.subject + '</span>';
+    html += '<h3 style="margin:15px 0">' + l.title + '</h3>';
+
+    if(videoID){
+      // Thumbnail + Play Button
+      html += '<div id="vid-' + child.key + '" style="position:relative;cursor:pointer;border-radius:12px;overflow:hidden" onclick="playVideo(\'' + child.key + '\',\'' + embedLink + '\')">';
+      html += '<img src="' + thumbnail + '" style="width:100%;display:block">';
+      html += '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:60px">▶️</div>';
+      html += '</div>';
+    } else {
+      html += '<p style="opacity:0.7">No video link</p>';
     }
-    
-    html += '<div style="background:rgba(255,255,255,0.15);padding:20px;border-radius:15px;margin-bottom:15px">';
-    html += '<span style="background:#8B5CF6;padding:5px 12px;border-radius:20px;font-size:12px">Grade ' + l.grade + '</span>';
-    html += '<h3 style="margin:10px 0">' + l.title + '</h3>';
-    html += '<p style="opacity:0.9">' + l.subject + '</p>';
-    html += ytButton;
+
     html += '</div>';
   });
   lessons.innerHTML = html;
 });
+
+// Video play karana function
+function playVideo(id, embedLink){
+  document.getElementById('vid-' + id).innerHTML =
+  '<iframe width="100%" height="250" src="' + embedLink + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px"></iframe>';
+}
 </script>
 </body>
 </html>
