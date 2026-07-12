@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>SIPHLA LK - Advanced</title>
+<title>SIPHLA LK - New</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
@@ -12,7 +12,7 @@ body{
   min-height:100vh;color:#fff;
 }
 @keyframes gradientBG {
-  0% {background-position: 0% 50%}
+ 0% {background-position: 0% 50%}
   50% {background-position: 100% 50%}
   100% {background-position: 0% 50%}
 }
@@ -23,31 +23,20 @@ body{
   border-radius:20px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
 }
-.card{
-  transition: all 0.3s ease;
-  cursor:pointer;
-}
-.card:hover{
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-}
-.btn{
-  padding:12px 20px; background:rgba(255,255,255,0.2); border:1px solid white; 
-  color:white; border-radius:12px; cursor:pointer; font-weight:bold;
-  transition:0.3s;
-}
-.btn:hover{ background:white; color:#764ba2; }
+.card{ transition: all 0.3s ease; cursor:pointer; }
+.card:hover{ transform: translateY(-10px) scale(1.03); }
+.btn{ padding:12px 20px; background:rgba(255,255,255,0.2); border:1px solid white;
+  color:white; border-radius:12px; cursor:pointer; font-weight:bold; }
 </style>
 </head>
 <body>
-
 <div id="app"></div>
 
-<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
+// SAME FIREBASE KEY - meka nisa data auto enawa
 var firebaseConfig = {
   apiKey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w",
   authDomain: "siphala-lk.firebaseapp.com",
@@ -68,14 +57,13 @@ function getYouTubeID(url){
 }
 
 function showGrades(){
-  app.innerHTML = `<div style="text-align:center;padding:40px 20px"><h1>📚 SIPHLA LK</h1><p>Loading...</p></div>`;
   db.ref('lessons').on('value', function(snapshot) {
     allLessons = [];
     snapshot.forEach(function(child) {
       var l = child.val(); l.key = child.key; allLessons.push(l);
     });
     var grades = [...new Set(allLessons.map(l => l.grade))].sort();
-    var html = `<div style="padding:30px 20px;text-align:center"><h1>📚 SIPHLA LK</h1><p style="opacity:0.8">Select Your Grade</p></div>`;
+    var html = `<div style="padding:30px 20px;text-align:center"><h1>📚 SIPHLA LK 2.0</h1></div>`;
     html += '<div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;max-width:1000px;margin:auto">';
     grades.forEach(g => {
       html += `<div onclick="showSubjects('${g}')" class="glass card" style="padding:40px 20px;text-align:center;font-size:24px;font-weight:bold">${g}</div>`;
@@ -107,10 +95,7 @@ function showLessons(grade, subject){
     var thumb = videoID? `https://img.youtube.com/vi/${videoID}/hqdefault.jpg` : '';
     html += `<div onclick="playLesson('${l.key}')" class="glass card" style="padding:0;overflow:hidden">
       <img src="${thumb}" style="width:100%;height:160px;object-fit:cover">
-      <div style="padding:20px">
-        <h3>${l.title}</h3>
-        <p style="opacity:0.8;font-size:14px">${l.description || ''}</p>
-      </div>
+      <div style="padding:20px"><h3>${l.title}</h3><p style="opacity:0.8;font-size:14px">${l.description || ''}</p></div>
     </div>`;
   });
   html += '</div>';
@@ -124,9 +109,7 @@ function playLesson(key){
   var html = `<div style="padding:20px"><button onclick="showLessons('${l.grade}','${l.subject}')" class="btn">← Back</button></div>`;
   html += `<div style="padding:20px;max-width:1000px;margin:auto">`;
   html += `<h2 style="margin-bottom:20px">${l.title}</h2>`;
-  html += `<div class="glass" style="padding:15px;border-radius:20px">
-    <iframe width="100%" height="500" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen style="border-radius:12px"></iframe>
-  </div>`;
+  html += `<div class="glass" style="padding:15px"><iframe width="100%" height="500" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen style="border-radius:12px"></iframe></div>`;
   if(l.description) html += `<div class="glass" style="padding:20px;margin-top:20px"><p>${l.description}</p></div>`;
   html += `</div>`;
   app.innerHTML = html;
