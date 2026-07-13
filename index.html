@@ -1,102 +1,123 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>siphla lk</title>
+<title>SIPHLA LK - Learn Easy</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-:root{
-  --bg:#0f172a;
-  --card:#1e293b;
-  --text:#e2e8f0;
-  --accent:#3b82f6;
-  --accent2:#8b5cf6;
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Fredoka',sans-serif}
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+body{
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  min-height:100vh; color:#333;
 }
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:var(--bg); color:var(--text);}
 
-.header{padding:30px 20px; text-align:center; background:linear-gradient(135deg,var(--accent),var(--accent2));}
-.header h1{font-size:32px; font-weight:700;}
-.header p{opacity:0.9; margin-top:5px;}
+/* Floating shapes background */
+.shape{ position:fixed; border-radius:50%; background:rgba(255,255,255,0.1); animation:float 20s infinite; z-index:-1; }
+@keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-30px)} }
 
-.container{max-width:1100px; margin:30px auto; padding:0 20px;}
-.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px;}
-
-.card{
-  background:var(--card); border-radius:16px; padding:25px;
-  cursor:pointer; transition:0.3s; border:1px solid #334155;
+.glass{
+  background: white;
+  border-radius:30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transition:0.3s;
 }
-.card:hover{transform:translateY(-5px); border-color:var(--accent); box-shadow:0 10px 30px rgba(59,130,246,0.2);}
+.glass:hover{ transform: scale(1.03); }
 
-.btn{padding:12px 24px; background:var(--accent); border:none; color:white; border-radius:10px; cursor:pointer; font-weight:600;}
-.btn:hover{background:#2563eb;}
+.btn{
+  padding:16px 32px; background: linear-gradient(135deg, #FF6B9D 0%, #FF8E53 100%);
+  border:none; color:white; border-radius:20px; cursor:pointer; font-weight:700; font-size:18px;
+  box-shadow: 0 5px 15px rgba(255,107,157,0.4);
+}
+.btn:hover{ transform: translateY(-3px); }
 
-.input{width:100%; padding:14px; background:#334155; border:1px solid #475569; border-radius:10px; color:var(--text); margin:8px 0;}
-iframe{width:100%; border-radius:12px; border:none;}
+h1{ color:white; text-shadow: 2px 2px 10px rgba(0,0,0,0.2); font-weight:700; }
+
+.grade-card{
+  text-align:center; padding:40px 20px; font-size:32px; font-weight:700; color:#667eea;
+}
+.subject-card{
+  padding:25px; margin:15px 0; font-size:22px; font-weight:600; color:#764ba2;
+}
+.lesson-card{
+  padding:0; overflow:hidden;
+}
+.lesson-title{ padding:20px; font-size:18px; font-weight:600; color:#333; }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>🎓 siphla lk</h1>
-  <p>smart learning platform</p>
-</div>
+<div class="shape" style="width:100px;height:100px;top:10%;left:10%"></div>
+<div class="shape" style="width:150px;height:150px;top:60%;right:10%;animation-delay:2s"></div>
+<div class="shape" style="width:80px;height:80px;bottom:20%;left:20%;animation-delay:4s"></div>
 
-<div id="app" class="container"></div>
+<div id="app"></div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-var firebaseconfig = { apikey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w", authdomain: "siphala-lk.firebaseapp.com", databaseurl: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app", projectid: "siphala-lk" };
-firebase.initializeapp(firebaseconfig); var db = firebase.database(); var alllessons = [];
+var firebaseConfig = { apiKey: "AIzaSyAs_3J2P6Sm6OBCQrnpWERusIOQWnFBX8w", authDomain: "siphala-lk.firebaseapp.com", databaseURL: "https://siphala-lk-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "siphala-lk" };
+firebase.initializeApp(firebaseConfig); var db = firebase.database(); var allLessons = [];
 
-showgrades();
-function getyoutubeid(url){ if(!url) return ''; var regexp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/; var match = url.match(regexp); return (match&&match[7].length==11)? match[7] : ''; }
+showGrades();
+function getYouTubeID(url){ if(!url) return ''; var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/; var match = url.match(regExp); return (match&&match[7].length==11)? match[7] : ''; }
 
-function showgrades(){
+function showGrades(){
   db.ref('lessons').on('value', function(snapshot) {
-    alllessons = []; snapshot.foreach(function(child) { var l = child.val(); l.key = child.key; alllessons.push(l); });
-    var grades = [...new set(alllessons.map(l => l.grade))].sort();
-    var html = `<h2 style="margin-bottom:20px">select your grade</h2><div class="grid">`;
-    grades.foreach((g,i) => {
-      html += `<div onclick="showsubjects('${g}')" class="card"><h3 style="font-size:24px">📘 ${g}</h3><p style="opacity:0.7;margin-top:8px">${alllessons.filter(x=>x.grade==g).length} subjects</p></div>`;
+    allLessons = []; snapshot.forEach(function(child) { var l = child.val(); l.key = child.key; allLessons.push(l); });
+    var grades = [...new Set(allLessons.map(l => l.grade))].sort();
+    var html = `<div style="padding:60px 20px;text-align:center">
+      <h1 style="font-size:56px">🎓 SIPHLA LK</h1>
+      <p style="color:white;font-size:20px;margin-top:10px">Learn with Fun! 🚀</p>
+    </div>`;
+    html += '<div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px;max-width:1000px;margin:auto">';
+    grades.forEach((g,i) => {
+      html += `<div onclick="showSubjects('${g}')" class="glass grade-card" style="animation-delay:${i*0.1}s">📖<br>${g}</div>`;
     });
-    html += `</div><div style="text-align:center;margin-top:30px"><a href="admin.html" style="color:var(--accent)">teacher login</a></div>`;
-    app.innerhtml = html;
+    html += '</div><div style="text-align:center;padding:20px"><a href="admin.html" style="color:white">Teacher Login</a></div>';
+    app.innerHTML = html;
   });
 }
 
-function showsubjects(grade){
-  var subjects = [...new set(alllessons.filter(l => l.grade == grade).map(l => l.subject))];
-  var html = `<button onclick="showgrades()" class="btn">← back</button><h2 style="margin:20px 0">${grade}</h2><div class="grid">`;
-  subjects.foreach(s => {
-    html += `<div onclick="showlessons('${grade}','${s}')" class="card"><h3>📚 ${s}</h3><p style="opacity:0.7;margin-top:8px">${alllessons.filter(x=>x.grade==grade&&x.subject==s).length} lessons</p></div>`;
+function showSubjects(grade){
+  var subjects = [...new Set(allLessons.filter(l => l.grade == grade).map(l => l.subject))];
+  var html = `<div style="padding:30px 20px"><button onclick="showGrades()" class="btn">← Back</button></div>`;
+  html += `<h1 style="text-align:center;font-size:42px;margin-bottom:20px">${grade}</h1>`;
+  html += '<div style="padding:20px;max-width:800px;margin:auto">';
+  subjects.forEach((s,i) => {
+    html += `<div onclick="showLessons('${grade}','${s}')" class="glass subject-card" style="animation-delay:${i*0.1}s">📚 ${s}</div>`;
   });
-  html += '</div>'; app.innerhtml = html;
+  html += '</div>'; app.innerHTML = html;
 }
 
-function showlessons(grade, subject){
-  var lessons = alllessons.filter(l => l.grade == grade && l.subject == subject);
-  var html = `<button onclick="showsubjects('${grade}')" class="btn">← back</button><h2 style="margin:20px 0">${subject}</h2>`;
-  lessons.foreach(l => {
-    var videoid = getyoutubeid(l.ytlink);
-    var thumb = videoid? `https://img.youtube.com/vi/${videoid}/hqdefault.jpg` : '';
-    html += `<div onclick="playlesson('${l.key}')" class="card" style="display:flex;gap:15px;align-items:center;padding:15px">
-      <img src="${thumb}" style="width:120px;height:90px;object-fit:cover;border-radius:8px">
-      <div><h3>${l.title}</h3><p style="opacity:0.7;font-size:14px">${l.description || ''}</p></div>
+function showLessons(grade, subject){
+  var lessons = allLessons.filter(l => l.grade == grade && l.subject == subject);
+  var html = `<div style="padding:30px 20px"><button onclick="showSubjects('${grade}')" class="btn">← Back</button></div>`;
+  html += `<h1 style="text-align:center;font-size:42px;margin-bottom:20px">${subject}</h1>`;
+  html += '<div style="padding:20px;max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px">';
+  lessons.forEach((l,i) => {
+    var videoID = getYouTubeID(l.ytlink);
+    var thumb = videoID? `https://img.youtube.com/vi/${videoID}/hqdefault.jpg` : '';
+    html += `<div onclick="playLesson('${l.key}')" class="glass lesson-card" style="animation-delay:${i*0.1}s">
+      <img src="${thumb}" style="width:100%;height:200px;object-fit:cover">
+      <div class="lesson-title">▶️ ${l.title}</div>
     </div>`;
   });
-  app.innerhtml = html;
+  html += '</div>'; app.innerHTML = html;
 }
 
-function playlesson(key){
-  var l = alllessons.find(x => x.key == key);
-  var videoid = getyoutubeid(l.ytlink);
-  var embedlink = videoid? 'https://www.youtube-nocookie.com/embed/' + videoid : '';
-  var html = `<button onclick="showlessons('${l.grade}','${l.subject}')" class="btn">← back</button>`;
-  html += `<h2 style="margin:20px 0">${l.title}</h2>`;
-  html += `<div class="card" style="padding:0;overflow:hidden"><iframe height="500" src="${embedlink}?autoplay=1" allowfullscreen></iframe></div>`;
-  if(l.description) html += `<div class="card"><p>${l.description}</p></div>`;
-  app.innerhtml = html;
+function playLesson(key){
+  var l = allLessons.find(x => x.key == key);
+  var videoID = getYouTubeID(l.ytlink);
+  var embedLink = videoID? 'https://www.youtube-nocookie.com/embed/' + videoID : '';
+  var html = `<div style="padding:30px 20px"><button onclick="showLessons('${l.grade}','${l.subject}')" class="btn">← Back</button></div>`;
+  html += `<div style="padding:20px;max-width:1000px;margin:auto">
+    <h1 style="margin-bottom:20px;font-size:36px;text-align:center">${l.title}</h1>
+    <div class="glass" style="padding:15px">
+      <iframe width="100%" height="500" src="${embedLink}?autoplay=1" frameborder="0" allowfullscreen style="border-radius:20px"></iframe>
+    </div>`;
+  if(l.description) html += `<div class="glass" style="padding:25px;margin-top:20px;font-size:16px">${l.description}</div>`;
+  html += `</div>`; app.innerHTML = html;
 }
 </script>
 </body>
